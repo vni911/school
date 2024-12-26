@@ -19,7 +19,7 @@ public class HW1 {
 
         scanner.close();
     }
-    //순열 (ppt 21page)
+    //순열 (ppt21page)
     private static void perm(char[] A, int j, List<Integer> primenumber) {
         if (j == A.length) {
             String current = new String(A);
