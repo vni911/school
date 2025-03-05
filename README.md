@@ -4,8 +4,16 @@
 - Computer Networks using C
 
 ## 3-1
-- Self-studying Machine Learning (Python - Jupyter Notebook)
-- with sklearn, tensorflow
+- Studying at School
+  1) Datamining
+  2) Regression
+  3) Stochastic-simulation
+  4) Java programming
+  5) Time series data analysis
+    
+- Self-studying
+  1) Machine Learning (Python - Jupyter Notebook) with sklearn, tensorflow
+  2) kotlin
 
 ## gudide book
 - 혼자공부하는 머신러닝+딥러닝
