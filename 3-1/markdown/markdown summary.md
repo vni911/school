@@ -92,7 +92,24 @@ Here's a sentence with a footnote. [^123]
     <a href="#heading-ids">Heading IDs</a>
 
 ex)   
-[go to 1. header](#1-header-)
-[go to 2. emphasis](#2-emphasis--)
-<a href="#heading-ids">Heading IDs</a>
+[go to 1. header](#1-header-)  
+[go to 2. emphasis](#2-emphasis--)  
+<a href="#heading-id">Heading ID</a>
 
+## 12. Check Box
+    - [x] A
+    - [ ] B
+    - [ ] C
+
+- [x] A  
+- [ ] B
+
+## 13. Emoji
+[Emoji lists](https://gist.github.com/rxaviers/7360908)  
+
+## Etc
+* Subscript  
+    H~2~O
+
+* Superscript  
+    x^2^
