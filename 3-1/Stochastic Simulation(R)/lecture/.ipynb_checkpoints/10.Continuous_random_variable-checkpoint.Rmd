@@ -1,0 +1,748 @@
+---
+title: "Continuous random variable"
+output: 
+  html_document: default
+  pdf_document: default
+  github_document: default
+---
+
+## Some of continuous random variables in R
+
+Some of the discrete distributions provided by R, together with the names of their parameter inputs.
+
+Distribution | R name (dist) | Paramter names
+------ | -------- | --------
+Uniform | ```unif``` | ```min=0, max=1```
+Exponential | ```exp``` | ```rate=1```
+chi-square | ```chisq``` | ```df```
+Gamma | ```gamma``` | ```shape, rate=1```
+Normal | ```norm``` | ```mean=0, sd=1```
+t | ```t``` | ```df```
+Weibull | ```weibull``` | ```shape, scale=1```
+
+## Uniform distribution
+
+* If the probability that $X$ lies in a given subinterval of $[a,b]$ depends only on the length of the subinterval and not on its location,
+
+* then $X$ is said to have a uniform distribution on $[a,b]$.
+
+* Write $X$ ~ $U[a,b]$
+
+* The pdf, mean and variace are
+
+    * $f(x) = \frac{1}{a-b}$, for $a \leq x  \leq b$
+    * $E[X] = \frac{a+b}{2}$
+    * $Var(x) = \frac{(b-a)^2}{12}$
+    
+<img src="./figure/10.Continuous_RV/uniform.png" width="400">
+
+
+### Uniform distribution in R
+
+* density function of the uniform on the interval from ```min``` to ```max```.
+
+```{r eval=FALSE}
+dunif(x, min=0, max=1, log = FALSE)
+```
+
+* the uniform distribution function
+
+```{r eval=FALSE}
+punif(q, min=0, max=1, lower.tail = TRUE, log.p = FALSE)
+```
+
+* quantile function
+
+```{r eval=FALSE}
+qunif(p, min=0, max=1, lower.tail = TRUE, log.p = FALSE)
+```
+
+* generate the uniform random variable
+
+```{r eval=FALSE}
+runif(n, min=0, max=1)
+```
+
+* Example :
+
+```{r}
+var(runif(100000))  # approximately 1/12
+```
+
+### From uniform random variable to Bernoulli random variable
+
+We can generate a Bernoulli random variable from the uniform distribution.
+
+```{r}
+rBernoulli <- function(p = 0.5){
+  if(runif(1) < p ) 1
+  else 0
+}
+rBernoulli()
+```
+
+Or, more conveniantly,
+```{r}
+rBernoulli <- function(p = 0.5) as.integer(runif(1) < p) # TRUE -> 1, FALSE -> 0
+rBernoulli()
+```
+
+Also, we can generate multiple samples.
+
+```{r}
+# generate muliple samples
+rBernoulli <- function(n, p = 0.5) as.integer(runif(n) < p)
+rBernoulli(n = 100, p = 0.9)
+```
+
+We can further contstruct a random number generator for the Binomial distribution.
+
+```{r}
+my_rbinom <- function(n, size, prob){
+  sapply(1:n, function(x) sum(rBernoulli(size, prob)))  # x is a dummy variable
+}
+```
+```{r}
+my_rbinom(10, 5, 0.6)
+```
+```{r}
+N <- 1000; n <- 20; p <- 0.4
+
+frequency <- table(factor(my_rbinom(N, n, p), levels = 0:n))
+relative_frequency <- as.numeric(frequency/N)
+
+x <- 0:n; pmf <- dbinom(x, n, p)
+
+par(mfrow=c(1,2))
+plot(x, relative_frequency, 'h')
+plot(x, pmf, 'h')
+```
+
+
+### Two dimensional uniform random variable
+
+Independent two uniform random variables.
+
+```{r fig.width=5, fig.height=5}
+n <- 10000
+X <- runif(n, -1, 1)
+Y <- runif(n, -1, 1)
+plot(X,Y, cex=0.1) # check scatter plot
+```
+
+
+### Uncorrelated but dependent variables
+
+Indepnent variables are uncorrelated but uncorrelated variables can be dependent.
+
+
+```{r}
+n <- 50000
+X <- runif(n, -1, 1)
+Z <- runif(n, -1, 1)
+Y <- sign(Z)*abs(X)
+cor(X,Y)   # correlation coefficient is almost 0
+```
+```{r fig.width=3.5, fig.height=3.5}
+plot(X,Y, cex=0.1) # check scatter plot
+```
+## Normal distribution
+
+### Normal distribution in R
+
+* the normal density function
+```{r eval=FALSE}
+dnorm(x, mean = 0, sd = 1, log = FALSE)
+```
+
+
+* the normal distribution function
+```{r eval=FALSE}
+pnorm(q, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE)
+```
+
+* Example :
+```{r}
+pnorm(1.96, lower.tail=TRUE)
+```
+```{r}
+pnorm(1.96, lower.tail=FALSE)
+```
+
+* quantile function
+```{r eval=FALSE}
+qnorm(p, mean = 0, sd = 1, lower.tail = TRUE, log.p = FALSE)
+```
+
+
+* Example:
+```{r}
+qnorm(0.975, 0, 1)
+```
+
+* normal random variables
+
+```{r eval=FALSE}
+rnorm(n, mean = 0, sd = 1)
+```
+
+
+### Normal density with different mean
+```{r fig.width=4.5, fig.height=4}
+x <- seq(-3, 5, 0.01)
+plot(x, dnorm(x, 0, 1), type="l", xlab="x", ylab="y",  xlim=c(-3,5))
+lines(x, dnorm(x, 1, 1), col="red")
+lines(x, dnorm(x, 2, 1), col="blue")
+title("Normal distribution: sigma=1, mu=0,1,2")
+```
+
+### Normal density with different sigma
+
+
+```{r fig.width=4.5, fig.height=4}
+x <- seq(-10, 10, 0.01)
+plot(x, dnorm(x, 0, 1), type="l", xlab="x", ylab="y",  xlim=c(-10,10))
+lines(x, dnorm(x, 0, 2), col="red")
+lines(x, dnorm(x, 0, 3), col="blue")
+title("Normal distribution: mu=0, sigma=1,2,3")
+
+```
+
+### Comparison between histogram and pdf
+
+```{r}
+z<-rnorm(10000)
+par(las=1)
+hist(z, breaks = seq(-5,5,0.2), freq=FALSE)
+phi <- function(x) exp(-x^2/2)/sqrt(2*pi)
+x <- seq(-5,5,0.1)
+lines(x, phi(x))  # or lines(x, dnorm(x))
+```
+
+### Sum of independent normal
+
+$X$ ~ $N(\mu_1, \sigma_1^2)$, $Y$ ~ $N(\mu_2, \sigma_2^2)$
+
+Then $X+Y$ ~ $N(\mu_1 + \mu_2, \sigma_1^2 + \sigma_2^2)$
+
+```{r fig.width=4, fig.height=4}
+mu1 <-1; mu2 <-1
+sigma1 <- 1; sigma2 <- 2
+X <- rnorm(50000, mu1, sigma1)
+Y <- rnorm(50000, mu2, sigma2)
+
+hist(X + Y, breaks=seq(-10,14,.2), freq=FALSE)
+
+x <- seq(-10, 14, 0.1)
+lines(x, dnorm(x, mu1 + mu2, sqrt(sigma1^2 + sigma2^2)))
+```
+
+### Correlated normal r.v.s
+
+
+```{r fig.width=7.5, fig.height=3}
+Z1 <- rnorm(1000)
+Z2 <- rnorm(1000)
+
+par(mfrow=c(1,3))
+rhos <- c(-0.7,0,0.7)
+for (rho in rhos){
+  X <- Z1
+  Y <- rho * Z1 + sqrt(1 - rho^2) * Z2
+  plot(X,Y, cex=0.2)
+  title(paste("rho = ", rho))
+}
+```
+```{r}
+for (rho in rhos){
+  X <- Z1
+  Y <- rho * Z1 + sqrt(1 - rho^2) * Z2
+  cat("When rho is ", rho, " the variance of X+Y is :",  var(X+Y), "\n")
+}
+```
+
+
+### Sample mean and sample variance
+
+The sample mean and sample variance from a normal distribution are independent.
+
+In general, it is hard to figure out the independence between two random variables.
+
+In this example, instead we compute the correlation between two random variables.
+
+
+```{r}
+sample_size <- 100  # sample size for each statistic
+N <- 10000   # number of simulation
+
+mu <- 3; sigma <- 2
+
+X_bar <- S2 <- numeric(N)  #preallocation
+
+for(i in 1:N){
+  rns <- rnorm(sample_size, mu, sigma)    # random normal sample
+  X_bar[i] <- mean(rns)
+  S2[i] <- var(rns)
+}
+
+cat("The correlation between X_bar and S^2 is", cor(X_bar, S2), "\n")
+```
+
+
+
+
+## t distribution
+
+### t density
+
+```{r}
+curve(dt(x, df=1), from=-6, to=6, ylab="density", ylim=c(0,0.4))
+curve(dt(x, df=2), add = TRUE)
+curve(dt(x, df=4), add = TRUE)
+curve(dt(x, df=10), add = TRUE)
+curve(dnorm(x), lwd=2, add= TRUE)
+title("t densities with 1,2,4 and 10 d.f., and normal limit in bold")
+```
+
+### t statistic
+
+In the code below, I intentionally used ```sapply``` for practical purpose of vectorized programming.
+
+You can rewrite this code with a program that uses ```for``` loop.
+
+```{r fig.width=6}
+mu <- 5
+sigma <- 3
+n <- 7     # sample size for each simulation
+N <- 10000   # simulation number
+t_statistic <- numeric(N)
+
+
+# t_statistic is a vector of length N
+t_statistic <- sapply(1:N, function(i) { # i is dummy variable
+  rsample <- rnorm(n, mu, sigma)
+  (mean(rsample) - mu)/(sd(rsample)/sqrt(n)) 
+})
+
+
+hist(t_statistic, breaks = seq(min(t_statistic),max(t_statistic)+0.2,0.2), 
+     probability=TRUE)
+
+x <- seq(-6,6,0.01)
+lines(x, dt(x, n-1))
+```
+
+QQ plot
+
+```{r fig.width=4, fig.height=4}
+qqnorm(t_statistic)
+```
+
+## chi-square distribution
+
+### chi-square density
+
+```{r fig.width=6}
+curve(dchisq(x, df=1), from=0, to=8, ylab="density", ylim=c(0,0.5))
+curve(dchisq(x, df=2), col="red", add = TRUE)
+curve(dchisq(x, df=3), col="blue", add = TRUE)
+curve(dchisq(x, df=4), col="darkgreen", add = TRUE)
+legend("topright", c("df=1", "df=2", "df=3", "df=4"),  pch="----", col=c("black","red","blue","darkgreen"))
+
+```
+
+### chi-square simulation
+
+
+```{r}
+dfs <- c(1,2,3,4)
+N <- 5000
+
+par(mfrow=c(2,2))
+for (df in dfs){
+  chi_rv <- numeric(N)
+  for (i in 1:df)
+    chi_rv <- chi_rv + rnorm(N)^2
+    hist(chi_rv, breaks=seq(0, 30, 0.5), freq=FALSE, main=paste("d.f. = ", df))
+  curve(dchisq(x, df), add=TRUE)
+}
+
+```
+
+### Sample mean and sample variance from chi-square
+
+As demonstraed below, if the population distribution is chi-square,
+
+then the sample mean and sample variance are not independent.
+
+```{r}
+sample_size <- 100  # sample size for each statistic
+N <- 10000   # number of simulation
+
+dof <- 10
+
+X_bar <- S2 <- numeric(N)  #preallocation
+
+for(i in 1:N){
+  chi_rv <- rchisq(sample_size, dof)    # random normal sample
+  X_bar[i] <- mean(chi_rv)
+  S2[i] <- var(chi_rv)
+}
+
+cat("The correlation between X_bar and S^2 is ", cor(X_bar, S2), "\n")
+```
+
+
+## Life time model : exponential and Weibull
+
+* Let $X \geq 0$ be the time until some event occurs,   
+    * such as the breakdown of some mechanical component    
+    * lifetime of the component.   
+
+* Let $f$ and $F$ be the pdf and cdf of $X$, then we define the survivor function as  
+    * $G(x) = P(X > x) = 1 - F(x)$
+    * $G(x)$ : the probability that the component will survive until $x$.   
+    
+* The failure rate is called the hazard function $\lambda(x)$.  
+    * $\lambda(x) dx = P($component fails between $x$ and $x+dx$ | still working at $x)$ = $\frac{f(x)dx}{G(x)}$   
+
+* Removing $dt$, we have   
+    * $\lambda(x) = \frac{f(x)}{G(x)}$
+
+* We can find the density $f$ from $\lambda$ as follows:
+    * $f(x) = \frac{d F(x)}{dx} = \frac{d}{dx} (1 - G(x)) = - \frac{dG(x)}{dx}$   
+    * $-\lambda(x) = \frac{f(x)}{G(x)} = -\frac{G'(x)}{G(x)} = - \frac{d}{dx} \log G(x)$    
+    * $G(x) = \exp(- \int_0^t \lambda(u) du)$
+    * $f(x) = \lambda(x) \exp ( - \int_0^x \lambda(u) d u )$
+
+
+## Exponential distribution
+
+* If $\lambda(x) = \lambda$, constant rate of failure, then we say $X$ has an exponential distribution and write $X$ ~ exp$(\lambda)$.
+
+    * $f(x) = \lambda$ exp$(-\lambda$x)
+    * $F(x) = 1 - \exp(-\lambda x)$
+    * $\mu = 1/\lambda$
+    * $\sigma = 1/\lambda$
+
+* memoryless property
+
+    * aging has no effect, that is, the component fails at random.
+    * $P(X > s + t | X > s) = P(X > s + t)/P(X > s) = P(X > t)$
+    * Given that you have survived until age $s$, the probability of surviving an additional time $t$ is the same as if you has just been born.
+
+### Exponential distribution in R
+
+* density function with $\lambda =$ ```rate```
+
+```{r eval=FALSE}
+dexp(x, rate = 1, log = FALSE)
+```
+
+* distribution function with $\lambda =$ ```rate```
+
+```{r eval=FALSE}
+pexp(q, rate = 1, lower.tail = TRUE, log.p = FALSE)
+```
+
+
+* quantile function with $\lambda =$ ```rate```
+
+```{r eval=FALSE}
+qexp(p, rate = 1, lower.tail = TRUE, log.p = FALSE)
+```
+
+* random variables with $\lambda =$ ```rate```
+
+```{r eval=FALSE}
+rexp(n, rate = 1)
+```
+
+### Exponential density
+
+```{r}
+x = seq(0,8,0.01)
+plot(x, dexp(x, rate=2), type="l", ylab="f(x)", col=1)
+lines(x, dexp(x, rate=1) , col=2)
+lines(x, dexp(x, rate=0.5), col=3)
+legend(5.5, 1.9, c("lambda = 2", "lambda = 1", "lambda = 0.5"), col=c(1,2,3), lty = c(1,1,1))
+
+```
+
+
+### Exponential distribution
+
+```{r}
+x = seq(0,8,0.01)
+plot(x, pexp(x, rate=2), type="l", ylab="f(x)", col=1)
+lines(x, pexp(x, rate=1) , col=2)
+lines(x, pexp(x, rate=0.5), col=3)
+legend(5.5, 0.4, c("lambda = 2", "lambda = 1", "lambda = 0.5"), col=c(1,2,3), lty = c(1,1,1))
+
+```
+
+
+### Exponential and Chi-square
+
+Exponetial random variable with $\lambda = 0.5$ and Chi-square random variable with d.f.$=2$ have the same distribution.
+
+```{r}
+X <- rexp(50000, rate = 0.5)
+Y <- rchisq(50000, df = 2)
+
+par(mfrow = c(1,2))
+hist(X, freq=FALSE, main="Exponential with lambda=0.5")
+hist(Y, freq=FALSE, main="Chi-square with df=2")
+```
+
+
+### Example : radioactive decay
+
+* Uranium-238 decays into thorium-234 at rate $\lambda$ per year.
+
+* The half-life of uranium-238 is $4.47*10^9$ years.
+
+    * the time it takes for half of some lump of uranium-238 to decay into thorium-234.
+
+* Let $X$ be the time of decay of a single atom, then $X \sim$ exp$(\lambda)$ and 
+
+    * $P(X > 4.47 \times 10^9) = 0.5$
+
+* Since $P(X > x) = \exp(-\lambda  x)$, we have 
+
+```{r}
+(lambda <- log(2)/(4.47*10^9))
+```
+
+### Memoryless property
+
+The exponential distribution has a memoryless property.
+
+Let X follows an exponential distribution.
+
+The following simulates $P(X>4)$.
+
+```{r}
+n <- 1000000
+y <- rexp(n, rate = 0.1)
+larger_4 <- y[y > 4]
+(ratio1 <- length(larger_4)/n)
+```
+
+The following simulates $P( X>12 | X>8 )$ which is similar to the previous result.
+
+```{r}
+larger_8 <- y[y > 8]
+larger_12 <- y[y > 12]
+
+(ratio2 <- length(larger_12)/length(larger_8))
+
+```
+
+
+### Inversion method : Generate exponential from uniform
+
+```{r}
+Nsim <- 10000       #number of random variables
+U <- runif(Nsim)
+X <- -log(U)        #transforms of uniforms
+Y <- rexp(Nsim)     #exponentials from R
+par(mfrow=c(1,2))   #plots
+hist(X,freq=F,main="Exp from Uniform")
+hist(Y,freq=F,main="Exp from R")
+```
+
+
+## Weibull distribution
+
+* $X$ has a Weibull distribution with parameters $\lambda$ and $m$, if the hazard function is
+
+    * $\lambda(x) = m \lambda x^{(m-1)}$
+
+
+* $X$ ~ Weibull$(\lambda, m)$
+
+* $G(x) = \exp(-\lambda x^m)$
+
+* $f(x)$ = m$\lambda$ $x^{(m-1)}$ exp(-$\lambda$ m x^{(m-1)})
+
+* R parameterization of the Weibull distribution differs from that presented above.
+
+    * m for ```shape``` argument and $\lambda^{(-1/m)}$ for ```scale``` argument.
+    
+
+```{r}
+x=seq(0,4,0.001)
+
+curve(2*x, from=0, to=4, ylab="hazard function")
+lines(x, 2.5*x^(1.5))
+lines(x, 0.5*x^(-0.5))
+lines(x, 1.5*x^0.5)
+lines(x, rep(1,length(x)))
+text(2.3, 6.99, "m>2")
+text(3, 5.2, "m=2")
+text(2.5, 2.65, "1<m<2")
+text(3.5, 1.3, "m=1")
+text(3, 0.52, "m<1")
+```
+
+```{r fig.width=6, fig.height=9}
+par(mfrow=c(3,1))
+curve(dweibull(x, shape=0.5, scale=2^(-1/0.5)), from=0, to=4, ylab="f(x)", lwd=3)
+text(2,2,"Weibull(2,0.5) density")
+curve(dweibull(x, shape=1.5, scale=2^(-1/1.5)), from=0, to=4, ylab="f(x)", lwd=3)
+text(2,0.6,"Weibull(2,1.5) density")
+curve(dweibull(x, shape=3, scale=2^(-1/3)), from=0, to=4, ylab="f(x)", lwd=3)
+text(2,0.8,"Weibull(2,3) density")
+
+```
+
+<!-- #region -->
+### Example : time to the next disaster
+
+* Suppose that the chance of a nuclear power station having a major accident in any given year is proportional to its age.
+
+* Also suppose we keep building nuclear power stations at a rate of one per year, until we have a major accident.
+
+* Let $T$ be the time until the first major accident.
+
+* Let $\alpha$ $t$ be the chance that a single power station age $t$ has an accident in the next year.
+
+* After $t$ years there are $t$ power stations operating, so the total rate of accident is $\alpha$ $t^2$.
+    * m$\lambda$ $t^{(m-1)}$ = $\alpha$ $t^2$  implies that  m=3, $\lambda=\alpha/3$
+
+
+* Thus, $T$ ~ Weibull$(\alpha/3, 3)$.
+
+* For example, let $\alpha$ be 1/1,000,000.
+
+* The probability that the first major accident is within the next 50 years 
+<!-- #endregion -->
+
+```{r}
+alpha <- 1/1000000
+m <- 3
+lambda <- alpha/3
+pweibull(50, shape = m, scale = lambda^(-1/m))
+```
+
+
+## Poisson process
+
+* A Poisson process is the continuous-time analogue of a sequence of independent trials. 
+
+* Suppose that we have a sequence of events, occurring at some rate $\lambda$ per unit time.   
+    * The expected number of events in $(s, t)$ is $\lambda(t-s)$.
+    * The infinitesimal probability that an event occurs in $(t, t+dt)$ is $\lambda dt$.
+
+* Let $T_k$ be the time between $k-1$ and $k$-th events.  
+
+* $N(s, t)$ be the number of events that have occured during $(s, t)$.  
+    * $T_k$ are i.i.d. $\exp(\lambda)$ random variables.  
+    * $N(s, t)$ follows pois$(\lambda(t-s))$.   
+    * If $(a, b)$ and $(s, t)$ are disjoint, then $N(a, b)$ and $N(s, t)$ are independent.  
+
+
+* A Poisson process looks like: 
+
+<img src="./figure/10.Continuous_RV/poisson_graph.png" width="400">
+
+### Merging and Thinning
+
+* Merging
+    * If we merge a Poisson process rate $\lambda_1$ with an independent Poisson process $\lambda_2$, then the results is a Poisson process rate $\lambda_1 + \lambda_2$.
+
+
+<img src="./figure/10.Continuous_RV/merging.png" width="400">
+
+
+* Thining
+    * We thin a process by tossing a (biased) coin for each event:
+        * heads we keep it
+        * tails it is discarded
+    * If we start with a Poisson process rate $\lambda$, and the probability of keeping an event is $p$, 
+    
+    * then the result is a Poisson process rate p$\lambda$.
+    
+<img src="./figure/10.Continuous_RV/thining.png" width="400">
+
+
+### Example : Thinging
+
+```{r}
+lambda <- 0.5    
+t.end <- 10    
+
+t1 <- N1 <- t2 <- N2 <- 0
+
+i <- j <- 1
+while(t1[i] < t.end | t2[j] < t.end){
+  arrival <- rexp(1, lambda)
+  
+  if(runif(1) < 0.4){
+    i <- i + 1
+    t1[i] <- t1[i-1] + arrival
+    N1[i] <- N1[i-1] + 1
+  } else {
+    j <- j + 1
+    t2[j] <- t2[j-1] + arrival
+    N2[j] <- N2[j-1] + 1
+  }
+}
+plot(t1, N1, type='s', xlab='time', ylab = 'Poisson Process')
+lines(t2, N2, type='s', col = 'red', lty='dashed')
+```
+
+
+### Queuing simulation
+
+* Customer arrival time and the time taken to serve are assumed to be exponential distribution.
+
+* The probability of new customer arrival during (t, t + dt) is $\lambda$dt.
+
+* The probability that service finished during (t, t + dt) is $\mu$dt.
+  
+* We do not allow an arrival and a departure to occur in the same interval (t, t + dt).
+    * because the probability is small.
+
+
+```{r}
+lambda <- 1     # arrival rate
+mu <- 1.1       # service rate
+t.end <- 100    # duration of simulation
+t.step <- 0.05  # time step
+queue <- rep(0, t.end/t.step + 1)
+for (i in 2:length(queue)) {
+  if (runif(1) < lambda*t.step) { # arrival
+    queue[i] <- queue[i-1] + 1
+  } else if (runif(1) < mu*t.step) { # departure
+    queue[i] <- max(0, queue[i-1] - 1)
+  } else { # nothing happens
+    queue[i] <- queue[i-1]
+  }
+}
+plot(seq(0, t.end, t.step), queue, type='l', xlab='time', ylab='queue size')
+title(paste('Queuing Simulation. Arrival rate:', lambda,'Service rate:', mu))
+
+```
+
+More correct version:
+
+```{r}
+lambda <- 1     # arrival rate
+mu <- 1.1       # service rate
+t.end <- 100    # duration of simulation
+
+queue <- timeline <- 0
+i <- 1
+while(timeline[i] < t.end){
+  i <- i + 1
+  arrival <- rexp(1, lambda + mu)
+  timeline[i] <- timeline[i-1] + arrival
+  if(runif(1) < lambda/(lambda + mu)) queue[i] <- queue[i-1] + 1
+  else queue[i] <- max(0, queue[i-1] - 1)
+}
+plot(timeline, queue, type='s', xlab='time', ylab='queue size')
+title(paste('Queuing Simulation. Arrival rate:', lambda,'Service rate:', mu))
+
+```

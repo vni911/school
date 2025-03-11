@@ -1,0 +1,887 @@
+---
+title: "Introduction to R"
+output:
+  html_document: default
+  pdf_document: default
+  github_document: default
+---
+
+
+### R as a calculating environment
+
+R can be used as a powerful calculator.
+For arithmetic calculations:
+```{r}
+(1 + 1 / 100) ^ 100
+```
+```{r}
+17 %% 5
+```
+```{r}
+17 %/% 5
+```
+```[1]``` implies this is item 1 in a vector of output.
+
+
+|symbol | meaning
+|------ | --------
+|+ | addition
+|- | subtraction
+|* | multiplication
+|/ | division
+|^ | exponential
+|%% | modulus
+|%/% | integer division
+
+
+### Built-in function in R
+
+R has a number of built in functions:  
+```sin(x), cos(x), tan(x), exp(x), log(x), sqrt(x), floor(x), ceiling(x), round(x)```
+```{r}
+exp(1)
+options(digits = 16)
+exp(1)
+pi
+sin(pi/6)
+```
+
+```{r}
+floor(2.3)
+ceiling(2.3)
+round(2.3)
+```
+
+### Variable
+
+* We can assign a value to a variable and use the variable.
+
+* For the assignment, we use command ```<-```
+    * Usually, this is pronounced as "gets".
+
+* Variable names made up of letters, numbers, . or _
+    * provided it starts with a letter, or . then a letter.
+    * names are case sensitive.
+    * for example,
+          * x, y, my_variable, a1, a2, .important_variable, x.input
+    * wrong name:
+          * 2016_income, .1grade, _x, y@gmail.com
+    
+To display the value of a variable ```x```, we type ```x``` 
+
+* or ```print(x)``` or ```show(x)```.
+```{r}
+x <- 100
+x
+```
+
+```{r}
+print(x)
+```
+
+```{r}
+show(x)
+```
+
+We can show the outcome of assignment by parentheses.
+```{r}
+(y <- (1 + 1 / x) ^ x)
+```
+
+When assigning, the right-hand side is evaluated first, then that value is placed in the variable on the left-hand side.
+```{r}
+n <- 1
+n <- n + 1
+n
+```
+
+R allows the use of ```=``` for variable assignment, in common with most programming languages.
+
+The following also works.
+```{r}
+3 -> three
+three
+```
+You can have multiple assignments.
+```{r}
+v <- w <- z <- 1
+v
+w
+z
+```
+
+
+### Functions
+
+Takes one or more argument (inputs) and produces one or more outputs (return values).
+
+```{r}
+seq(from = 1, to = 9, by =2)
+```
+```{r}
+seq(from = 1, to = 9)
+```
+
+You can access the built-in help by ```help(function name)``` or ```?function name```:
+
+Every function has a default order for arguments.  
+If you provide arguments in this order, then they do not need to be named.
+```{r}
+seq(1, 9, 2)
+```
+```{r}
+seq(to = 9, from = 1)
+```
+```{r}
+seq(by=-2, 9, 1)
+```
+
+We will study more about functions in Chapter 4.
+
+### Vectors
+
+* the basic data structure in R
+     * also called atomic vector
+  
+* indexed set of variables
+* i-th element of vector ```x``` is denoted by ```x[i]```
+* the types of all elements of an atomic vector should be the same
+     * logical, integer, double (often called numeric), character
+   
+* three basic functions for constructing vectors
+     * ```seq```, ```rep```, ```c```
+     
+* Basic three properties:
+     * Type, ```typeof()```, what it is.
+     * Length, ```length()```, how many elements it contains.
+     * Attributes, ```attributes()```, additional arbitrary metadata.
+
+```{r}
+# short for sequence
+(x <- seq(1, 20, by = 2))
+```
+```{r}
+(x2 <- seq(1.1, 2, by = 0.1))
+```
+
+```{r}
+# short for repeat
+(y <- rep(3, 4))
+```
+
+```{r}
+# short for combine
+(z <- c(y, x))
+```
+
+* another method for sequence
+```{r}
+(x <- 100:110)
+```
+```{r}
+(y <- 110:100)
+```
+```{r}
+length(x)
+```
+
+* ```letters, LETTERS```
+```{r}
+# the 26 lower-case letters of the Roman alphabet
+letters
+```
+```{r}
+# the 26 upper-case letters of the Roman alphabet;
+LETTERS
+```
+
+
+* ```seq_along()```
+
+```seq_along(x)``` is the same as ```1:length(x)```
+
+```{r}
+x <- letters[1:5]  # a b c d e
+y <- seq_along(x)
+print(y)
+```
+
+* vector and index
+```{r}
+(x<- 100:110)
+```
+
+```{r}
+# second element
+x[2]
+```
+
+```{r}
+# last element
+x[length(x)]
+```
+
+```{r}
+(x<- 100:110)
+
+i <- c(1, 3, 2)
+
+x[i]
+```
+```{r}
+x[1:5]
+```
+
+minus index:
+```{r}
+j <- c(-1, -2, -3)
+x[j]
+```
+
+but you can't mix positive and negative index, the following code is erroneous.
+```{r eval=FALSE}
+x[c(-1, 2)]
+```
+
+empty vetor:
+```{r}
+x <- c()
+```
+
+elementwise algebraic operation:
+```{r}
+x <- c(1, 2, 3)
+y <- c(4, 5, 6)
+x * y
+y ^ x
+```
+
+with unequal length of vectors:
+```{r}
+c(1, 2, 3, 4) + c(1, 2)
+
+2 * c(1, 2, 3)
+
+(1:3)^2
+```
+
+This works but with warning message:
+```{r eval=FALSE}
+c(1, 2, 3) + c(1, 2)
+```
+
+functions taking vectors
+```{r}
+sqrt(1:3)
+
+mean(1:6)
+
+sort(c(5, 1, 3, 4, 2))
+```
+
+logical vector
+```{r}
+logi <- c(TRUE, FALSE, T, F)
+typeof(logi)
+```
+
+character vector
+```{r}
+char <- c("a", "vector", "of", "characters")
+typeof(char)
+```
+
+integer vector
+```{r}
+integ <- c(1L, 2L, 3L, 4L)
+typeof(integ)
+```
+
+double vector
+```{r}
+doub <- c(1, 2, 3, 4)
+typeof(doub)
+```
+
+
+
+
+#### ```typeof()```
+
+```typeof()``` returns an (internal) object type : 
+
+* logical - logical vector
+* double - double vector
+* interger - interger vector
+* character - character vector
+* list - see Ch.5
+* builtin : R built-in function
+* closure : user defined function
+* and so on.
+
+Simply speaking, the objects in R are implemented via C, 
+and the internal types mean the C level data types.
+
+
+#### Coercion
+
+If we try to combine differet types of elements in a vector, they will be coerced to the most flexible type.
+
+  * logical, integer, double, character
+```{r}
+c("a", 1)
+```
+```{r}
+c(TRUE, FALSE, 0)
+```
+
+
+#### Example : mean and variance
+
+compare computed mean and variance with built-in functions
+
+```{r}
+x <- c(1.2, 0.9, 0.8, 1, 1.2)
+
+x.mean <- sum(x)/length(x)
+
+x.mean - mean(x) 
+```
+```{r}
+x.var <- sum((x-x.mean)^2)/(length(x)-1)
+x.var - var(x)
+```
+
+
+#### Example : simple numerical integration
+
+* The basic problem in numerical integration is to compute an approximate solution to a definite integral.
+
+
+```{r echo=FALSE, fig.width=5, fig.height=4}
+dt <- 0.005
+x <- seq(0, pi/6, 0.00001)
+f <- cos(x)
+plot(x, f, type="l")
+for(left in seq(0, pi/6, dt)){
+  rect(left, 0, left+dt, cos(left))  
+}
+```
+
+```{r}
+dt <- 0.005
+t <- seq(0, pi/6, by = dt)
+ft <- cos(t)
+(I <- sum(ft) * dt)
+```
+
+```t``` is a vector and ```ft``` is also a vector.
+
+```{r}
+I - sin(pi/6)
+```
+
+Note the difference between the numerical integration and theoretical value.
+
+
+#### Example : exponential limit
+
+```{r}
+x <- seq(10, 200, by = 10)
+
+y <- (1 + 1/x)^x
+
+exp(1) - y
+```
+```{r fig.width=5, fig.height=4}
+plot(x, y)
+```
+
+### Missing data
+
+in R, missing data is represented by ```NA```.
+
+```{r}
+a <- NA   # assign NA to variable A
+is.na(a)     # is it missing?
+```
+```{r}
+a <- c(11, NA, 13)
+is.na(a)
+```
+```{r}
+mean(a)
+```
+
+```{r}
+mean(a, na.rm = TRUE) #NAs can be removed
+```
+
+```NA``` is logical 
+
+```{r}
+typeof(NA)
+```
+
+and can be coerced to numeric, or integer, or charactor
+
+```{r}
+x <- c(NA, 10)
+typeof(x[1])
+```
+```{r}
+y <- c(NA, "abc")
+typeof(y[1])
+```
+
+
+### Inf and -Inf
+
+If a computation result is too big, R will return ```Inf```.
+
+```{r}
+2 ^ 1024
+```
+```{r}
+- 2 ^ 1024
+```
+```{r}
+1 / 0
+```
+
+### NaN
+
+If a computation result makes little sense, then R will return ```NaN```, not a number.
+
+```{r}
+Inf - Inf
+```
+```{r}
+0 / 0
+```
+
+
+### Expression and assignment
+
+Expression is a phrase of code that can be executed.
+```{r}
+seq(10, 20, by=3)
+```
+
+```{r}
+4
+```
+```{r}
+mean(c(1,2,3))
+```
+```{r}
+1 > 2
+```
+
+If the evaluation of the expression is saved using ```<-```, then it called an assignment.
+```{r}
+x1 <- seq(10, 20, by=3)
+```
+```{r}
+x2 <- 1>2
+```
+
+A logical expression is formed using 
+
+* the comparison operators 
+    * ```<```, ```>```, ```<=```, ```>=```, ```==```, and ```!=``` (not equal to)
+
+* and the logical operators 
+    * ```&``` (and), ```|``` (or), and ```!``` (not).
+
+The value of a logical expression is either ```TRUE``` or ```FALSE```.
+
+* The integers 1 and 0 can also be used as ```TRUE``` or ```FALSE```.
+```{r}
+c(0, 0, 1, 1) | c(0, 1, 0, 1)
+```
+
+### x[subset]
+
+R's subsetting operators are powerful and fast.
+
+Subsetting is hard to learn.
+
+We can extract a subvector using a subset as a vector of TRUE/FALSE.
+
+```{r}
+x <- 1:10
+x%%4 == 0
+```
+```{r}
+( y <- x[ x%%4==0 ] )
+```
+
+R also provide subset function, which ignore ```NA```.
+
+* whereas ```x[subset]``` preserve ```NA```.
+
+```{r}
+x <- c(1, NA, 3, 4)
+x[x > 2]
+```
+```{r}
+subset(x, subset = x>2 )
+```
+
+For the index position of TRUE elements, use ```which(x)```
+```{r}
+x <- c(1, 1, 2, 3, 5, 8, 13)
+which(x %% 2 == 0)
+```
+
+Explore more about subsetting:
+```{r}
+x <- c(2.1, 4.2, 3.3, 5.4)
+```
+```{r}
+x[c(TRUE,FALSE,TRUE,FALSE)]
+```
+```{r}
+x[x > 3]
+```
+```{r}
+x[order(x)]
+```
+
+#### Example : rounding error
+
+Many floating numbers are subject to rounding errors in digital computers.
+```{r}
+2 * 2 == 4
+```
+```{r}
+sqrt(2) * sqrt(2) == 2
+```
+The solution is to use ```all.equal(x,y)```, which returns TRUE if the difference between x and y is smaller than some tolerance.
+
+```{r}
+all.equal(sqrt(2) * sqrt(2), 2)
+```
+
+### Sequential ```&&``` and ```||```
+
+To evaluate ``` x && y ```, R first evaluate ```x```.
+If ```x``` is ```FALSE``` then R returns ```FALSE``` without evaluating ```y```.
+
+To evaluate ``` x || y ```, R first evaluate ```x```.
+If ```x``` is ```TRUE``` then R returns ```TRUE``` without evaluating ```y```.
+
+Sequential evalutation of ```x``` and ```y``` is useful when ```y``` is not always well defined.
+
+```{r}
+x <- 0
+x == 0 || sin(1/x) == 0
+```
+
+Note that ```&&``` and ```||``` only work on scalars,
+whereas ```&``` and ```|``` work on vectors elementwise.
+
+
+### subsetting and assignment
+
+Subsetting operators can be combined with assignment operator.
+
+```{r}
+x <- 1:5
+x[c(1, 2)] <- 2:3
+x
+```
+```{r}
+x[-1] <- 4:1
+x
+```
+```{r}
+x[x %% 2 == 0] <- 0
+x
+```
+```{r}
+x[which(x == max(x))] <- 100
+x
+```
+
+
+
+### Names
+
+You can name a vector:
+```{r}
+(x <- c(a = 1, b = 2, c = 3))
+
+```
+```names``` function returns a charater vector:
+```{r}
+names(x)
+```
+```{r}
+y <- 1:3
+names(y) <- c("first", "second", "third")
+y
+```
+and select elements by names:
+```{r}
+y["first"]
+```
+```{r}
+y[c("first", "third")]
+```
+
+
+
+
+### Matrix
+
+Matrix is created from a vector using the function matrix:
+
+* ```matrix( data, nrow =1, ncol=1, byrow=FALSE )```
+    * ```data``` : vector of length at most ```nrow*ncol```
+         * if length of vector < nrow*ncol, then data is reused as many times as is needed
+    * ```nrow``` : number of rows
+    * ```ncol``` : number of columns
+    * ```byrow = TRUE``` : fill the matrix up row-by-row
+    * ```byrow = FALSE``` : fill the matrix up column-by-column, default
+
+* ```diag(x)``` : create diagonal matrix
+
+* ```rbind(...)``` : join matrices with rows of the same length
+
+* ```cbind(...)``` : join matrices with columns of the same length
+
+
+Example:
+```{r}
+(A <- matrix(1:6, nrow = 2, ncol = 3))
+```
+```{r}
+(A <- matrix(1:6, nrow = 2, ncol = 3, byrow = TRUE))
+```
+```{r}
+A[1, 3] <- 0
+A
+```
+
+```{r}
+A[, 2:3]
+```
+
+```{r}
+(B <- diag(c(1, 2, 3)))
+```
+
+Matrix operation
+
+* Usual algebraic operations, including ```*```, act elementwise. 
+
+* To perform matrix operation, we use ```%*%```. 
+
+* ```nrow(x)```, ```ncol(x)```    
+
+* ```det(x)``` : determinant of ```x```    
+
+* ```t(x)``` : transpose of ```x```    
+
+* ```solve(A, B)``` : returns ```x``` such that ```A %*% x = B```    
+
+* If ```A``` is invertable, the ```solve(A)``` is the inverse of ```A```.    
+
+
+```{r}
+A <- matrix(c(3, 5, 2, 3), nrow=2, ncol=2)
+B <- matrix(c(1, 1, 0, 1), nrow=2, ncol=2)
+```
+```{r}
+A %*% B
+```
+```{r}
+A.inv <- solve(A)
+A %*% A.inv   # we observe rounding error
+```
+```{r}
+A^(-1)   #This is not an inverse. ^(-1) applies elementwise.
+```
+
+```cbind()``` : Combine R objects by columns
+
+```rbind()``` : Combine R objects by rows
+
+```{r}
+(C <- cbind(A,B))
+```
+```{r}
+(D <- rbind(A,B))
+```
+```{r}
+colnames(C) <- c("a", "b", "c", "d")
+C
+```
+
+```{r}
+rownames(C) <- c("first", "second")
+C
+```
+
+```{r}
+# number of rows
+nrow(C)
+```
+```{r}
+# number of columns
+ncol(C)
+```
+#### Subsetting of matrix
+
+select columns:
+```{r}
+(partC1 <- C[, c(1, 2)])
+```
+select columns by column names:
+```{r}
+(partC1 <- C[, c("a", "b")])
+```
+
+```partC1``` is a matrix
+```{r}
+class(partC1)
+```
+When you select one column, it becomes a vector, not a matrix
+```{r}
+this_is_vector_now <- C[, "a"]
+class(this_is_vector_now)
+```
+When you want to preserve matrix form:
+```{r}
+still_matrix <- C[, "a", drop = FALSE]
+class(still_matrix)
+```
+select rows:
+```{r}
+(partC2 <- C[1,])
+```
+Or, in a combined way:
+```{r}
+(partC2 <- C[1, c(2, 3)])
+```
+```{r}
+class(partC2)
+```
+When we use a single index, R counts the index columnwise:
+```{r}
+C[1]
+C[2]
+C[3]
+C[4]
+```
+
+```{r}
+is.vector(partC2)
+```
+```{r}
+is.matrix(partC2)
+```
+```{r}
+(Cm <- as.matrix(partC2))
+```
+```{r}
+class(Cm)
+```
+```{r}
+(Cv <- as.vector(Cm))
+```
+```{r}
+class(Cv)
+```
+
+
+### Objects and classes
+
+R is an object oriented language.
+
+Every object in R is a member of a class.
+
+You can use the ```class``` function to determine the class of object.
+
+```{r}
+# numeric vector
+class(c(1, 2, 3))
+```
+```{r}
+# character vector
+class(c("c", "B", "z"))
+```
+```{r}
+# function
+class(sin)
+```
+```{r}
+class(matrix(c(1,2)))
+```
+
+
+### Workspace
+
+The objects that you create using R remain in existence until you explicitly delete them.
+
+* ```rm(x)``` : remove object ```x```
+
+* ```rm(list=ls())``` : remove all objects
+
+
+### Working directory
+
+When you run R, it uses one of the directories on your hard drive as a working directory,
+
+* where it looks for user-written programs and data files.
+
+Check the working directory.
+```{r eval=FALSE}
+getwd()
+```
+
+Change the working directory to "dir"
+
+```{r eval=FALSE}
+setwd("dir")
+```
+
+```/``` is for directory and file address, ```.``` refers current directory, ```..``` refers parent directory
+
+### Writing script
+
+We can type and evaluate all possible R expression at the prompt, it is much more convenient to write scripts,
+
+* which simply comprise collections of R expression.
+
+* We use the terms program and code synonymously with script.
+
+You can use built-in editor in Rgui or Rstudio.    
+
+### Help
+
+To find out more about an R command or function x, you can type ```help(x)``` or just ```?x```.
+
+If you cannot remember the exact name, then ```help.search("x")```.
+
+HTML help command : ```help.start()```
+
+### package
+
+R provides various useful packages to help you.
+
+https://cran.r-project.org/web/packages/
+
+To install a package:  
+
+```install.packages("packagename")```  
+
+To access the package:  
+
+```library("packagename")```
+
+Or use package menu.
+
+R documentation : https://www.rdocumentation.org/

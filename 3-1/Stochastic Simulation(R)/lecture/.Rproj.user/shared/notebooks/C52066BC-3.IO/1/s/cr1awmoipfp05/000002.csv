@@ -1,0 +1,6 @@
+"0","x <- seq(0, 5, by=0.01)"
+"0","y.upper <- 2*sqrt(x)"
+"0","y.lower <- -2*sqrt(x)"
+"0","y.max <- max(y.upper)"
+"0","y.min <- min(y.lower)"
+"0","plot(c(-2,5), c(y.min, y.max), type=""n"", xlab=""x"", ylab=""y"")"

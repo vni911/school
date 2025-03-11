@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "servr::new_post(\"R markdown\")\nservr::blog_push()",
+    "created" : 1491963068923.000,
+    "dirty" : true,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "1885314830",
+    "id" : "7DABFA50",
+    "lastKnownWriteTime" : 7598807797345955380,
+    "last_content_update" : 1491963380456,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

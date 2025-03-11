@@ -1,0 +1,253 @@
+---
+title: "Numerical integration"
+output: 
+  html_document: default
+  pdf_document: default
+  github_document: default
+---
+
+```{r}
+rect <- function(ftn, a, b, n = 100){
+  h <- (b-a)/n
+  x.vec <- seq(a, b, by = h)
+  f.vec <- sapply(x.vec, ftn)
+  h * sum(f.vec)
+}
+```
+## Numerical integration
+
+* It is frequently necessary to compute
+
+$$ \int_a^b f(x) dx $$
+
+* If we know the antiderivative F, then
+
+$$ \int_a^b f(x) dx  = F(b) - F(a)$$
+
+* However for many function f, we don't know the closed form of antiderivative.
+
+* We approximate the integral on the divided subinterval:
+
+$$ a=x_0, x_1, \cdots, x_{n-1}, x_n = b $$
+
+
+## Rectagular method
+
+* Review the rectangular method
+
+```{r}
+ftn6 <- function(x) return(4*x^3)
+rect(ftn6, 0, 1, n=20)
+```
+
+## Trapzoidal rule
+
+* Approximating the are under $y=f(x)$ over the subinterval $[x_i, x_{i+1}]$ by a trapezoid.
+
+<img src="./figure/6.Numerical_integration/trapzoid.png" width="400">
+
+
+* The area of each trapezoid:
+
+$$ \frac{h}{2}(f(x_i) + f(x_{i+1})) \textrm{ where } h = x_{i+1} - x_i $$
+    
+* Trapezoidal approximation:
+$$ T = \frac{h}{2} (f(x_0) + 2f(x_1) + \cdots + 2f(x_{n-1}) + f(x_n))$$
+```{r}
+trapezoid <- function(ftn, a, b, n = 100) {
+  h <- (b-a)/n
+  x.vec <- seq(a, b, by = h)
+  f.vec <- sapply(x.vec, ftn)
+  h*(f.vec[1]/2 + sum(f.vec[2:n]) + f.vec[n+1]/2)
+}
+```
+
+```{r}
+ftn6 <- function(x) return(4*x^3)
+trapezoid(ftn6, 0, 1, n=20)
+```
+
+
+## Simpson's rule
+
+* Simpson's rule subdivides the interval $[a,b]$ into $n$ (even) subintervals
+
+* and approximate $f$ by a parabola (polynomial of degree 2).
+
+$$  P(x) = f(u) \frac{(x-v)(x-w)}{(u-v)(u-w)} + f(v) \frac{(x-u)(x-w)}{(v-u)(v-w)} + f(w) \frac{(x-u)(x-v)}{(w-u)(w-v)}  $$
+
+
+* As an approximation to the area, we use
+
+$$ \int_v^w P(x) dx = \frac{h}{3}(f(u) + 4f(v) + f(w)) $$
+
+<img src="./figure/6.Numerical_integration/simpson.png" width="300">
+
+* Now assuming $n$ is even, we add up the approximation for subintervals $[x_{2i}, x_{2i+2}]$ to obtain Simpson's approximations $S$.
+
+$$ S = \frac{h}{3}(f(x_0) + 4f(x_1) + 2f(x_2) + \cdots + 4f(x_{n-1}) + f(x_n)) $$
+
+* Notice that the $f(x_i)$ for $i$ odd are all weighted 4, while the $f(x_i)$ for $i$ even (except 0 and n) are weighted 2.
+
+```{r}
+simpson_n <- function(ftn, a, b, n = 100) {
+  n <- max(c(2*(n %/% 2), 4))
+  h <- (b-a)/n
+  x.vec1 <- seq(a+h, b-h, by = 2*h)
+  x.vec2 <- seq(a+2*h, b-2*h, by = 2*h)
+  f.vec1 <- sapply(x.vec1, ftn)
+  f.vec2 <- sapply(x.vec2, ftn)
+  h/3*(ftn(a) + ftn(b) + 4*sum(f.vec1) + 2*sum(f.vec2))   # return value
+}
+
+```
+
+```{r}
+# or similarly
+simpson_n <- function(ftn, a, b, n = 100) {
+  n <- max(c(2*(n %/% 2), 4))
+  h <- (b-a)/n
+  
+  x.vec <- seq(a, b, by = h)
+  f.vec <- sapply(x.vec, ftn)
+  
+  h * 1/3 * (f.vec[1] + 4 * sum(f.vec[seq(2, n, by=2)]) + 2 * sum(f.vec[seq(3, n-1, by=2)]) + f.vec[n+1])
+  
+}
+
+```
+
+* Example
+
+```{r}
+ftn6 <- function(x) return(4*x^3)
+simpson_n(ftn6, 0, 1, 20)
+```
+
+* Example
+
+```{r fig.width=5}
+f <- function(x) {
+  if (0 < x & x < 1) 1/simpson_n(function(x) exp(-x^3), 0, 1)*exp(-x^3)
+  else 0
+}
+
+plot(seq(-1,2,0.01), sapply(seq(-1,2,0.01), f), xlab="x", ylab="f(x)", 'l')
+```
+
+* compute the mean
+
+```{r}
+(m <- simpson_n(function(x) x*f(x), 0, 1))
+```
+
+* compute the variance
+
+```{r}
+simpson_n(function(x) (x-m)^2*f(x), 0, 1)
+```
+
+* How to define the cumulative function F(x)?
+
+### pdf and cdf of the standard normal
+
+Consider the probability density function and cumulative distribution of standard normal.
+
+```{r fig.width=5}
+# probability density function
+phi <- function(x) exp(- x ^ 2 / 2) / sqrt(2 * pi)
+
+# cumulative distribution function
+Phi <- function(z) {
+  if (z < 0) 0.5 - simpson_n(phi, z, 0)
+  else 0.5 + simpson_n(phi, 0, z)
+}
+
+z <- seq(-5, 5, by = 0.1)
+phi.z <- sapply(z, phi)
+Phi.z <- sapply(z, Phi)
+plot(z, Phi.z, type = "l", ylab = "", main = "phi(z) and Phi(z)")
+lines(z, phi.z)
+```
+
+### Functional programming
+
+Return values are determined by ```f.vec```:
+
+* rectangular : ```h * sum(f.vec)```
+* trapzoid : ```h * (f.vec[1]/2 + sum(f.vec[2:n]) + f.vec[n+1]/2)```
+* Simpson : ```h * 1/3 * (f.vec[1] + 4 * sum(f.vec[seq(2, n, by=2)]) + 2 * sum(f.vec[seq(3, n-1, by=2)]) + f.vec[n+1])```
+
+
+Define each component as a function:
+
+```{r}
+rect_method <- function(f.vec) sum(f.vec)
+
+trapz_method <- function(f.vec) {
+  n <- length(f.vec) - 1
+  f.vec[1]/2 + sum(f.vec[2:n]) + f.vec[n+1]/2
+}
+
+simpson_method <- function(f.vec) {
+  n <- length(f.vec) - 1
+  (f.vec[1] +
+    4 * sum(f.vec[seq(2, n, by=2)]) +
+    2 * sum(f.vec[seq(3, n-1, by=2)]) +
+    f.vec[n+1]) / 3
+}
+```
+
+
+Now we can define general numerical integration function.
+
+```{r}
+numerical_int <- function(ftn, a, b, n = 100, method){
+  
+  n <- max(c(2*(n %/% 2), 4))
+  h <- (b-a)/n
+  x.vec <- seq(a, b, by = h)
+  f.vec <- sapply(x.vec, ftn)
+  
+  h * method(f.vec)
+}
+
+```
+
+```{r}
+ftn6 <- function(x) return(4*x^3)
+```
+
+```{r}
+numerical_int(ftn6, 0, 1, method = rect_method)
+```
+```{r}
+numerical_int(ftn6, 0, 1, method = trapz_method)
+```
+```{r}
+numerical_int(ftn6, 0, 1, method = simpson_method)
+```
+
+This programming tatic allow us to extend the numerical integrations as a new method is implemented.
+
+For example, the Milne method:
+
+<img src="./figure/6.Numerical_integration/simpson.png" width="300">
+
+$$ \int_u^w P(x) dx = \frac{h}{3} (4f(u) -2f(v) + 4f(w)) $$
+
+```{r}
+milne_method <- function(f.vec) {
+  n <- length(f.vec) - 1
+  (4 * f.vec[1] +
+    (-2) * sum(f.vec[seq(2, n, by=2)]) +
+    8 * sum(f.vec[seq(3, n-1, by=2)]) +
+    4 * f.vec[n+1]) * 1 / 3
+}
+```
+
+```{r}
+numerical_int(ftn6, 0, 1, method = milne_method)
+```
+
+More about functional programming : http://adv-r.had.co.nz/Functional-programming.html

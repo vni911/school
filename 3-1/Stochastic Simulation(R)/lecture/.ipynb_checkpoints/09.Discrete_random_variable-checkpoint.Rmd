@@ -1,0 +1,585 @@
+---
+title: "Discrete random variable"
+output:
+  github_document: default
+  html_document: default
+  html_notebook: default
+---
+
+## Discrete random variable in R
+
+R has built-in functions for handling the most commonly encountered probability distributions.   
+Let $X$ be of type ```dist``` with parameters ```p1```, ```p2```, ..., then
+
+* ```ddist(x, p1, p2, ...)``` equals $P(X=x)$ for $X$ discrete, or the density of $X$ at $x$ for $X$ continuous.
+
+* ```pdist(q, p1, p2, ...)``` equals $P(X \leq q)$
+
+* ```qdist(p, p1, p2, ...)``` equals the smallest $q$ for which $P(X \leq q) \geq p$ (the 100$p$%-point)
+
+* ```rdist(n, p1, p2, ...)``` is a vector of ```n``` pseudo-random numbers from distribution type dist.  
+
+The input ```x```, ```p```, ```q``` can all be vector valued, in which case the output is vector valued.
+
+## Some of the discrete distributions 
+
+Some of the discrete distributions provided by R, together with the names of their parameter inputs.
+
+Distribution | R name (dist) | Paramter names
+------ | -------- | --------
+Binomial | ```binom``` | ```size, prob```
+Geometric | ```geom``` | ```prob```
+Negative binomial | ```nbinom``` | ```size, prob```
+Poisson | ```pois``` | ```lambda```
+
+$P(X \leq 5)$ for $X$ which follows binomial distribution with ```size=10```, ```prob =0.5```.
+
+```{r}
+pbinom(5, size = 10, prob = 0.5)
+```
+
+## Bernoulli distribution
+
+A Bernoulli random variable $B$ is based on a single trial
+
+* takes on the value 1 if the trial is a success
+
+* 0 otherwise.
+
+We use notation $B$ ~ $Bernoulli(p)$.
+
+* $P(B=x) = p$ for $x = 1$ and $P(B=x) = 1-p$ for $x = 0$.
+
+* $E[B] = p$.
+
+* $Var(B) = p(1-p)$.
+
+
+## Binomial distribution
+
+Let $X$ be the number of success in n independent trials, with probability of success $p$.
+
+Then $X$ is said to have a binomial distribution with parameters $n$ and $p$.
+
+Let $B_1, ..., B_n$ be independent $Bernoulli(p)$ r.v.s, then   
+
+* $X = B_1 + ... + B_n$ ~ $binom(n,p)$
+
+For $x = 0, 1, ..., n,$ we have
+
+$$ P(X = x) = {n \choose x} p^x (1-p)^{n-x} $$
+
+The Bernoulli distribution is the same as a $binom(1,p)$.
+
+
+### Related functions in R
+
+[R online document for Binomial](https://www.rdocumentation.org/packages/stats/versions/3.4.0/topics/Binomial)
+
+
+#### probability mass function for the binomial such that $P(X=x)$
+
+
+##### Usage
+```{r eval=FALSE}
+dbinom(x, size, prob, log=FALSE)
+```
+* ```x``` can be a vector
+
+##### Example
+```{r}
+dbinom(c(0,1,2,3,4,5), size=5, prob=0.4)
+```
+
+
+#### probability distribution function for the binomial such that $P(X \leq q)$
+
+##### Usage
+```{r eval=FALSE}
+pbinom(q, size, prob, lower.tail = TRUE, log.p = FALSE)
+```
+* ```q``` can be a vector
+
+##### Example
+```{r}
+pbinom(c(0,1,2,3,4,5), 5, 0.4)
+```
+
+#### quantile function
+
+##### Usage
+```{r eval=FALSE}
+qbinom(p, size, prob, lower.tail = TRUE, log.p = FALSE)
+```
+
+#### random number generator
+
+##### Usage
+```{r eval=FALSE}
+rbinom(n, size, prob)
+```
+* ```n``` observations of of the binomial random variable
+
+    * ```size``` : number of trial
+    * ```prob``` : probability of success on each trial
+
+
+##### Example
+
+Generate 5 samples from a Binomial distribution $binom(10, 0.4)$.
+
+```{r}
+rbinom(5, size = 10, prob = 0.4)
+```
+
+We can generate a Bernoulli random variable using ```rbinom``` function.
+```{r}
+# repeat this statement
+rbinom(1, size = 1, prob = 0.4)
+```
+
+The sum of Bernoulli random variable follows a Binomial distribution.
+```{r}
+# repeat this statement
+sum(rbinom(10, size = 1, prob = 0.4))
+```
+```{r}
+# the same distribution with above
+rbinom(1, size = 10, prob = 0.4)
+```
+
+
+### Binomial probability mass function
+
+With different paramter settings, observe the probability mass functions.
+
+```{r}
+par(mfrow=c(2, 2))
+x <- seq(0, 20, 1)
+
+ps <- c(0.5, 0.5, 0.2, 0.8)
+trials <- c(10, 20, 10, 10)
+
+for (i in seq(1,4)){
+   y <- dbinom(x, trials[i], ps[i])
+   plot(x,y,xlim=c(0, trials[i]), ylim=c(0,1), xlab="x", ylab="P(X=x)", type="h")
+   points(x, y)
+   title(paste0("binomial(", trials[i], "," , ps[i], ")"))
+}
+
+```
+
+### Binomial probability distribution function
+
+```{r}
+par(mfrow=c(2, 2))
+x <- seq(0, 20, 1)
+
+ps <- c(0.5, 0.5, 0.2, 0.8)
+trials <- c(10, 20, 10, 10)
+
+for (i in seq(1,4)){
+   y <- pbinom(x, trials[i], ps[i])
+   plot(x, y, xlim=c(0, trials[i]), ylim=c(0,1), xlab="x",
+                           ylab="P(X<=x)", type="s")
+   title( paste("binomial(", trials[i], ",", ps[i], ")") )
+}
+
+```
+
+### Generate random variables
+
+* Generates $N$ binomial random variables using ```rbinom```.
+
+
+```{r}
+N <- 100; n <- 20; p <- 0.4
+(brv <- rbinom(N, n, p) )
+```
+
+* ```table``` counts the number of values for each observation.
+
+```{r}
+table(brv)
+```
+
+* Using ```factor```, you can specify ```levels```.
+```{r}
+table(factor(brv, levels=0:20))
+```
+
+
+### Comparison between r.v. and pmf
+
+
+* If $N$ is large, then the relative frequency of the random variables is similar to the pmf.
+
+
+```{r}
+N <- 500; n <- 20; p <- 0.4
+
+frequency <- table(factor(rbinom(N, n, p), levels = 0:n))
+relative_frequency <- as.numeric(frequency/N)
+
+x <- 0:n
+pmf <- dbinom(x, n, p)
+
+par(mfrow=c(1,2))
+plot(x, relative_frequency, 'h')
+plot(x, pmf, 'h')
+
+```
+
+#### Example
+
+* What is the probability that a thousand randomly selected items will have less than 20 failures when the failure rate is 0.01?
+
+```{r}
+pbinom(19, size=1000, prob=0.01)
+```
+## Geometric distribution
+
+* Let $B_1, B_2, ...$ be an infinite sequence of independent $Bernoulli(p)$ random variables
+
+* and let $Y$ be such that $B_1 = ... = B_Y = 0$ and $B_{Y+1} = 1$
+
+* Then $Y$ is said to have a geometric distribution with parameter $p$.
+
+* $Y$ is the number of trials up to (but not including) the first success.
+
+* We write $Y$ ~ geom$(p)$, and we have,
+
+    * $P(Y=y) = p(1-p)^y$
+    * $E[Y] = (1-p)/p$
+    * $Var(Y) = (1-p)/p^2$
+    
+    
+### pmf of geometric distribution
+
+```{r}
+par(mfrow=c(2,2))
+x <- seq(0,20,1)
+ps <- seq(0.2,0.8,0.2)
+for (p in ps){
+  y <- dgeom(x, p)
+  plot(x, y, xlim=c(0,20), ylim=c(0,1), xlab="x", ylab="P(X=x)", type="h")
+  points(x, y)
+  title(paste("geometric(", p, ")"))
+}
+```
+
+### cdf of geometric distribution
+
+```{r echo=FALSE}
+par(mfrow=c(2,2))
+x <- seq(0,20,1)
+ps <- seq(0.2,0.8,0.2)
+for (p in ps){
+  y <- pgeom(x, p)
+  plot(x,y,xlim=c(0,20),ylim=c(0,1),xlab="x", ylab="P(X<=x)", type="s")
+  title(paste("geometric(",p,")"))
+}
+```
+
+```{r echo=FALSE}
+par(mfrow=c(2,2))
+x <- seq(0,20,1)
+ps <- seq(0.2,0.8,0.2)
+for (p in ps){
+  y <- pgeom(x, p)
+  plot(x,y,xlim=c(0,20), ylim=c(min(y),1), xlab="x", ylab="P(X<=x)",type="s")
+  title(paste("geometric(",p,")"))
+}
+```
+
+### Comparison with simulation
+
+```{r}
+N <- 500; p <- 0.4; xmax <- 20
+
+x <- 0:xmax; pmf <- dgeom(x, p)
+
+frequency <- table(factor(rgeom(N, p), levels=x))   # generated by rgeom function
+relative_frequency <- as.numeric(frequency/N)
+
+par(mfrow=c(1,2))
+plot(x, relative_frequency, 'h'); plot(x, pmf, 'h')
+```
+
+### Comparison with simulation based on Bernoulli trial
+
+The following code generate a geometric random variable.
+
+```{r}
+# repeat this procedure
+n <- 0
+while(TRUE){
+  trial <- rbinom(1, 1, 0.4)  # Bernoulli trial
+  if (trial == 1) break   # if trial is success, stop while
+  n <- n + 1              # if trial is failure, increase number of trials
+}
+print(n)
+```
+
+Generate ```N = 500``` samples using the above procedure.
+
+```{r}
+N <- 500; p <- 0.4; xmax <- 20;
+
+# generate random values from rbinom
+geom_rv <- numeric(N)  # preallocation, zero vector with length N
+for (i in 1:N){        # N is sample size
+  n <- 0
+  while(TRUE){
+    trial <- rbinom(1, 1, 0.4)  # Bernoulli trial
+    if (trial == 1) break   # if trial is success, stop while
+    n <- n + 1              # if trial is failure, increase number of trials
+  }
+  geom_rv[i] <- n
+}
+
+# for probability mass function
+x <- 0:xmax;  pmf <- dgeom(x, p)
+frequency <- table(factor(geom_rv, levels = x))
+relative_frequency <- as.numeric(frequency/N)
+
+par(mfrow=c(1,2))
+plot(x, relative_frequency, 'h');   plot(x, pmf, 'h')
+
+```
+
+## Negative binomial distribution
+
+* Let $Z$ be the number of failures before the $r$-th success, in a sequence of iid $Bernoulli(p)$ trials.
+
+* Then $Z$ is said to have a negative binomial distribution and we write $Z \sim nbinomial(r,p)$.
+
+* Let $Y_1, ..., Y_r$ be i.i.d. geom$(p)$ r.v.s, then
+    * $Z = Y_1 + ... + Y_r$ ~ nbinom$(r,p)$
+    
+* It follows
+    * $E[Z] = \frac{r(1-p)}{p}$
+    * $Var(X) = \frac{r(1-p)}{p^2}$
+
+
+### Negative binomial probability mass function
+
+```{r}
+par(mfrow=c(2,2))
+x <- seq(0,20,1)
+sizes = c(2, 3, 10, 10)
+probs = c(0.5, 0.5, 0.5, 0.8)
+
+for (i in seq(1,4)){
+  y <- dnbinom(x, sizes[i], probs[i])
+  plot(x, y, xlim=c(0,20), ylim=c(0,1), xlab="x", ylab="P(X=x)", type="h")
+  points(x, y)
+  title(paste("neg-binomial(", sizes[i], ",", probs[i], ")"))
+}
+```
+
+### Negative binomial distribution function
+
+
+```{r}
+par(mfrow=c(2,2))
+x <- seq(0,20,1)
+sizes = c(2, 3, 10, 10)
+probs = c(0.5, 0.5, 0.5, 0.8)
+
+for (i in seq(1,4)){
+  y<- pnbinom(x, sizes[i], probs[i])
+  plot(x, y, xlim=c(0,20), ylim=c(0,1), xlab="x", ylab="P(X<=x)", type="s")
+  title(paste("neg-binomial(", sizes[i], ",", probs[i], ")"))
+}
+```
+
+
+### Comparison with simulation based on Bernoulli trial
+
+Generate a negative binomial random variable.
+
+```{r}
+# Repeatedly run this code.
+r <- 3; p <- 0.4;
+
+total_failure <- total_success <- 0
+while(TRUE){
+  if(rbinom(1, 1, p) == 1) total_success <- total_success + 1
+  else total_failure <- total_failure + 1
+  if (total_success == r) break
+}
+total_failure
+```
+
+Generate large number of negative binomial random variables.
+
+In this case we use total number of successes and total numberof trails.
+
+```{r}
+
+N <- 500; r <- 3; p <- 0.4; xmax <- 20;
+
+nbinom_rv <- numeric(N)    # preallocation
+for (i in 1:N){
+  total_trial <- total_success <- 0
+  while(TRUE){
+    total_success <- total_success + rbinom(1, 1, p)
+    total_trial <- total_trial + 1
+    if (total_success == r) break
+  }
+  nbinom_rv[i] <- total_trial - total_success
+}
+
+x <- 0:xmax;   pmf <- dnbinom(x, r, p)
+relative_frequency <- as.numeric(table(factor(nbinom_rv, levels=x))/N)
+
+par(mfrow=c(1,2))
+plot(x, relative_frequency, 'h'); plot(x, pmf, 'h')
+```
+
+### Example: quality control
+
+* A manufacturer tests the production quality of its product by randomly selecting 100 from each batch.
+
+* If there are more than two faulty items, then they stop the production.
+
+* The probability of fault : $p$
+
+* Check the probability of stopping when we check 100 items.
+
+* Let $Z$ be the number of items we check before we find three faults, then $Z \sim nbinomial(3,p)$ and
+    * $P($stopping production$) = P(Z+3 \leq 100)$
+  
+
+```{r}
+pnbinom(97, size = 3, prob = 0.01)
+```
+
+This value also can be represented by the binomial distribution:
+
+* The probability of three or more faulty items from 100 items.
+
+```{r}
+1 - pbinom(2, size = 100, prob = 0.01)
+```
+
+If $Z$ follows $nbinomial(r,p)$, then $P(Z \leq z) = 1 - P(X \leq r - 1)$
+where $X$ follows $binom(z + r, p)$
+
+```{r}
+r <- 5; p <- 0.3
+pnbinom(3, size = r, prob = p)
+1 - pbinom(r - 1, size = 3 + r, prob = p)
+```
+
+
+## Poisson distribution
+
+The Poisson distribution is used as a model for events occurring at random over time or space.
+
+* number of accidents in a year
+
+* number of misprints on a page
+
+* number of gamma particles released in a second
+
+* number of phone calls at an exchange in an hour
+
+* number of companies going bankrupt in a year
+
+We say $X$ has a Poisson distribution with parameter $\lambda$, and write $X \sim$ pois$(\lambda)$.
+
+* $E[X] = \lambda$
+
+* $Var(X) = \lambda$
+
+### Poisson distribution in R
+
+```{r eval=FALSE}
+dpois(x, lambda, log = FALSE)
+```
+
+* probability mass function for the Poisson such that $P(X=x)$
+    * ```x``` can be a vector
+* ```lambda``` : (non-negative) mean, can be a vector
+
+```{r eval=FALSE}
+ppois(q, lambda, lower.tail = TRUE, log.p = FALSE)
+```
+
+* Poisson distribution function such that $P(X \leq q)$
+
+```{r eval=FALSE}
+qpois(p, lambda, lower.tail = TRUE, log.p = FALSE)
+```
+
+* quantile function
+
+```{r eval=FALSE}
+rpois(n, lambda)
+```
+
+* random generation for the Poisson distribution
+
+### Poisson probability mass function
+
+```{r}
+par(mfrow=c(2, 2))
+x <- seq(0, 20, 1)
+lambdas = c(0.1, 1, 5, 10)
+
+for (lambda in lambdas){
+  y <- dpois(x, lambda)
+  plot(x,y,xlim=c(0,20), ylim=c(0,1), xlab="x", ylab="P(X=x)", type="h")
+  points(x, y)
+  title(paste("Poisson(", lambda, ")"))
+}
+
+```
+
+
+### Poisson probability distribution function
+
+
+```{r}
+par(mfrow=c(2, 2))
+x <- seq(0, 20, 1)
+lambdas = c(0.1, 1, 5, 10)
+
+for (lambda in lambdas){
+  y <- ppois(x, lambda)
+  plot(x,y,xlim=c(0,20), ylim=c(0,1), xlab="x", ylab="P(X<=x)", type="s")
+  title(paste("Poisson(", lambda, ")"))
+}
+
+```
+
+### Comparison with simulation
+
+```{r}
+N <- 500; lambda <- 10; xmax <- 20
+
+x <- 0:xmax
+pmf <- dpois(x, lambda)
+
+frequency <- table(factor(rpois(N, lambda), levels=x))
+relative_frequency <- as.numeric(frequency/N)
+
+par(mfrow=c(1,2))
+plot(x, relative_frequency, ylab = "relative frequency", 'h')
+plot(x, pmf, 'h')
+
+```
+
+### Poisson approximation to binomial
+
+When $n$ is large and $p$ is small, $binom(n,p)$ is approximated by $pois(np)$.
+
+```{r}
+n <- 200; p <- 0.03; x<-0:20
+par(mfrow=c(1,2))
+plot(x, dbinom(x, n, p), 'h')
+plot(x, dpois(x, n*p), 'h')
+
+```

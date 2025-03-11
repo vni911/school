@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "---\nlayout: post\ntitle: R notebook\ncategories : IT\ntags: [R]\n---\n\n\nNotebook 형식의 장점은 작성한 notebook을 웹페이지 등에 쉽게 연동하여 띄울 수 있다는 점입니다.\n\n예제 코드 :\n\n```{r}\ncoin_list = c(500, 100, 50, 10)\n\nnum_cases <- function(money, coin){\n  if (money == coin){\n    return(1)\n  } else if (money < coin){\n    return(0)\n  } else {\n    return(sum(sapply(coin_list[coin_list <= coin], \n                      FUN = num_cases, \n                      money = money - coin)))\n  }\n}\n\n```\n\n함수 실행 결과 확인하기\n```{r}\nnum_cases(money = 120, coin = 100)\n```\n\n참고로 함수 내의 ```sapply```는 다음의 원리를 통해 작동하게 됩니다.\n\n*  먼저 ```sapply```에 적용되는 함수는 ```FUN = num_cases```이므로 ```num_cases```는 일종의 recursive 함수라는 것을 알 수 있습니다.\n\n*  한편 ```sapply```가 적용되는 벡터는 ```sapply```의 첫번째 인자인 ```coin_list[coin_list <= coin]```입니다.\n\n*  ```coin_list```는 함수 내에는 정의되지 않고, 전역 변수로서 존재합니다.\n\n*  마지막으로 ```money = money - coin```는 ```num_cases``` 함수의 첫번째 인자인 ```money```가 되겠습니다.\n\n*  정리하자면 함수 내의 ``sapply```는 ```num_cases``` 함수를 ```coin_list[coin_list <= coin]```의 각각의 원소에 적용하는데, 이 때 ```coin_list[coin_list <= coin]```는 ```num_cases``` 함수의 두번째 인자입니다.\n\n*  따라서 ```num_cases``` 함수의 첫번째 인자도 추가적으로 명시해야 하는데, 그것이 ```sapply```의 마지막 인자인 ```money = money - coin```가 됩니다.\n",
+    "created" : 1491962920171.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3449746894",
+    "id" : "833A7752",
+    "lastKnownWriteTime" : 1491963057,
+    "last_content_update" : 1491963057959,
+    "path" : "~/Dropbox/Work/Github/YUST/_source/2017-04-12-R-notebook.Rmd",
+    "project_path" : null,
+    "properties" : {
+        "chunk_output_type" : "inline",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_markdown"
+}

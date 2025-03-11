@@ -1,0 +1,415 @@
+---
+title: "Programming with functions"
+output:
+  html_document: default
+  github_document: default
+  pdf_document: default
+---
+
+### Functions
+
+Functions are a fundamental building block of R.
+
+In R, the operations that do all the work are functions.
+
+A function is an object in R that takes some input objects (called arguments) and returns an ouput object.
+
+A function has a form:
+```{r eval=FALSE}
+function_name <- function(argument_1, argument_2, ...) {
+  expression_1
+  expression_2
+  ...
+  return(output)
+}
+```
+* ```argument_1, arguments_2``` are the names of variables as inputs for the function.
+* ```function_name``` is the name of function. You change ```function_name``` as you want.
+
+To call or run the function we type:
+```{r eval=FALSE}
+function_name(x1, x2, ...)
+```
+the value of this expression is the value of output.
+
+* A function may have more than one ```return``` statement, in which case it stops after executing the first one it reaches.
+* If there is no statement ```return(output)``` then the value returned by the function is the value of the last expression in the braces.
+
+* A function always returns a value.
+  * For some functions the value returned is unimportant.
+  * In such cases one usually omits the return statement, or returns NULL.
+* If the value returned by a function is not assigned to a variable, then it is printed.
+
+* The most important advantage of using a function is that once it is loaded, it can be used again and again without having to reload it.
+
+* The second most important use of functions is to break down a programming task into smaller logical units.
+
+
+#### Example : Find zeros of ```a2*x^2+a1*x+a0=0```
+
+```{r}
+quad3 <- function(a0, a1, a2) {
+  if(a2 == 0 && a1 == 0 && a0 == 0) {
+    roots <- NA
+  } else if (a2 == 0 && a1 == 0 ) {
+    roots <- NULL
+  } else if ( a2 == 0 ) {
+    roots <- -a0/a1
+  } else {
+    discrim <- a1^2 - 4*a2*a0
+    if (discrim > 0) {
+      roots <- (-a1 +c(1,-1) * sqrt(a1^2-4*a2*a0))/(2*a2)
+    } else if (discrim == 0) {
+      roots <- -a1/(2*a2)
+    } else {
+      roots <- NULL
+    }
+  }
+  roots
+}
+```
+
+```{r}
+quad3(6, -5, 1)
+```
+
+
+#### Example : n choose r
+
+The number of ways that you can choose r things from a set of n, ignoring the order, is  
+
+$$ \frac{n!}{r!(n-r)!} $$
+```{r}
+n_factorial <-function(n) {
+  n_fact <- prod(1:n)
+  return(n_fact)
+}
+n_choose_r <- function(n, r) {
+  n_ch_r <- n_factorial(n) / n_factorial(r) / n_factorial(n-r)
+  return(n_ch_r)
+}
+```
+```{r}
+n_choose_r(10,6)
+```
+```{r}
+n_choose_r(10,4)
+```
+
+#### Example : Winsorised mean
+k-th Winsorised mean of ordered data $x=\{ x_1, ..., x_n \}$ is defined as  
+
+$$ w_k = \frac{(k+1)x_{k+1} + x_{k+2} + \cdots + x_{n-k+1} + (k+1) x_{n-k} }{n} $$
+```{r}
+wmean <- function(x, k) {
+  x <- sort(x)
+  n <- length(x)
+  x[1:k] <- x[k + 1]
+  x[(n - k + 1):n] <- x[n - k]
+  mean(x)
+}
+```
+
+
+#### Exmple : Swap
+
+swap values of ```x[1]``` and ```x[2]```
+```{r eval=FALSE}
+swap <- function(x){
+  y <- x[2]
+  x[2] <- x[1]
+  x[1] <- y
+  return(x)
+}
+x <- c(7, 8, 9)
+x[1:2] <- swap(x[1:2])
+x[2:3] <- swap(x[2:3])
+```
+
+
+### Scope and its consequences
+
+* Argument and variables defined within a function exist only within that function.
+   * If you define and use a variable x inside a function, it does not exist outside the function.
+   * If variables with the same name exist inside and outside a function, then they are separate and do not interact at all.
+* The variable defined outside the function can be seen inside the function (provided there is not a variable with the same name defined inside).
+
+```{r}
+test <- function(x) {
+  y <- x+1
+  return(y)
+}
+test(1)
+```
+```{r eval=FALSE}
+y
+### Error : Object "y" not found
+```
+```{r}
+test2 <- function(x) {
+  y <- x + z
+  return(y)
+}
+z <- 1
+test2(1)
+z <- 2
+test2(1)
+```
+
+### Optional argument and default value
+
+* To give ```argument_1``` the default value ```x1``` we use ```argument_1 = x1``` within the function definition.
+* If an argument has a default, then it may be omitted when calling the function, in which case the default is used.
+
+
+```{r}
+test3 <- function(x = 1, y = 1, z = 1) {
+  return(x * 100 + y * 10 + z)
+}
+test3(2, 2)
+test3(y = 2, z = 2)
+```
+
+
+### Every operation in R is function call
+
+All work in R is done by functions.
+For example,
+```{r}
+k <- 3
+k
+```
+This function does similar operation with above.
+```{r}
+# `<-` is a function name
+`<-`(k, 4)    # k <- 4
+k
+```
+In addition, if we have
+```{r}
+animals <- c("cow", "dog", "cat", "pig")
+```
+and you want 
+```{r}
+animals[3]
+```
+This is equivalent to
+```{r}
+`[`(animals, 3)
+```
+In the above ``` `[` ``` is a function name.
+
+Similarly,
+```{r eval=FALSE}
+animals[4] <- "duck"
+```
+can be achieved by
+```{r}
+(animals <- `[<-`(animals, 4, "duck"))
+```
+In practice, we do not use the above expression, but it is useful to know that every operation in R is a function.
+
+Other example:
+```{r}
+x <- 3
+y <- 4
+x + y
+```
+```{r}
+# functional form of arithmetic expression, which is equal to x + y
+`+`(x, y)
+```
+
+```{r}
+if (x > y) print("x is larger than y") else print("y is larger than x")
+```
+
+```{r}
+# functional form of if-then expression
+`if`(x > y, print("x is larger than y"), print("y is larger than x"))
+```
+
+### Function as an object
+
+A function in R is just another object that is assigned to a symbol.
+
+```{r}
+f <- function(x, y) c(x + 1, y + 2)
+f(1,2)
+```
+
+You can type the name of function to see the code for it.
+
+```{r}
+f
+```
+### Vector-based programming
+
+* Many R functions are vectorised.
+* To further facilitate vector-based programming, R provides functions that enable the vectorisation of user-defined functions.
+* ```apply```, ```sapply```, ```lapply```, ```tapply```, and ```mapply```.
+* ```sapply(X, FUN)```
+   * apply function ```FUN``` to every element of vector ```X```.
+
+
+
+
+#### Exmaple : Simple sapply
+
+```{r}
+sapply(1:5, sqrt)
+```
+which is equivalent to
+```{r}
+sqrt(1:5)
+```
+
+
+#### Example : Simple sapply with anonymous function
+
+Anonymous function is a function without a name.
+You use an anonymous function when it is not worth the effort to give it a name.
+
+```{r}
+(function(x) x^2 + 1)(10)
+```
+
+Anonymous function can be applied to ```sapply```:
+```{r}
+sapply(1:10, function(x) x^2 + 1)
+```
+
+```{r}
+sapply(1:4, function(x) paste0("a", x))
+```
+
+```{r}
+m <- matrix(1:9, nrow = 3, byrow = T)
+sapply(1:3, function(x) sum(m[x, ]))   # equivalent to rowSums(m)
+```
+
+<!-- #region -->
+#### Example : Density of primes with sapply
+ 
+* Let $\rho(n)$ be the number of primes less than or equal to n
+* Then
+
+$$ \lim_{n \rightarrow \infty} \frac{\rho(n)\log(n)}{n} = 1$$
+
+
+* To check this, first we define a function ```prime``` that tests if a given integer is prime.
+
+* We then use ```sapply``` to apply ```prime``` to the vector ```2:n```.
+<!-- #endregion -->
+
+```{r}
+prime <- function(n) {
+  if (n == 1) {
+    is.prime <- FALSE
+  } else if (n == 2) {
+    is.prime <- TRUE
+  } else {
+    is.prime <- TRUE
+    for (m in 2:(n/2)) {
+      if ( n%%m == 0 ) is.prime <- FALSE
+    }
+  }
+  return(is.prime)
+}
+```
+```{r}
+x <- 1:22
+y <- sapply(x, prime)
+tapply(x, y, max)
+```
+
+```{r}
+n <- 1000
+m.vec <- 2:n
+primes <- sapply(m.vec, prime)
+num.primes <- cumsum(primes)
+plot(m.vec, num.primes/m.vec, type = "l", main = "prime density", xlab = "n", ylab = "")
+lines(m.vec, 1/log(m.vec), col= "red")
+```
+
+### Recursive programing
+
+* A recursive program is one that calls itself.
+* This is useful because many algorithms are recursive in nature.
+
+#### n factorial
+
+```{r}
+nfact2 <- function(n) {
+  if (n==1) {
+    cat("called nfact2(1)\n")
+    return(1)
+  } else {
+    cat("called nfact2(", n, ")\n", sep="")
+    return(n*nfact2(n-1))
+  }
+}
+```
+
+
+#### loop to recursive function
+
+Any loop can be converted to a recursive function.
+
+```{r}
+total <- 0
+n <- 10
+for (i in 1:n) total <- total + i
+total
+```
+
+```{r}
+sum_n <- function(n){
+  if (n == 1) 1
+  else n + sum_n(n - 1)
+}
+sum_n(10)
+```
+
+
+```<<-``` can change the values in the parent environment.
+Using ```<<-```, another version of recursive function can be constructed.
+
+```{r}
+total <- 0
+sum_n <- function(n){
+  total <<- total + n
+  if(n > 1) sum_n(n - 1)
+}
+sum_n(10)
+total
+```
+
+
+#### Sieve of Eratosthenes
+The Sieve of Eratosthenes is an algorithm for finding all of the primes less than or equal to a given number $n$.
+
+1. Start with the list $2,3,\cdots,n$ and $p=2$.
+2. Remove from the list all elements that are multiples of $p$ (but keep $p$ itself).
+3. Increase $p$ to the smallest element of the remaining list that is larger than the current $p$.
+4. If $p$ is larger than sqrt of $n$ then stop, otherwise go back to step 2.
+
+```{r}
+primesieve <- function(sieved, unsieved) {
+  p <- unsieved[1]
+  n <- unsieved[length(unsieved)]
+  if ( p^2 > n ) {
+    return(c(sieved, unsieved))
+  } else {
+    unsieved <- unsieved[unsieved %% p != 0]
+    sieved <- c(sieved, p)
+    return(primesieve(sieved, unsieved))
+  }
+}
+
+```
+
+
+
+
+

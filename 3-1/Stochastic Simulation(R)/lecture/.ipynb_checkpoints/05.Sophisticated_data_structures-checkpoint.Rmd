@@ -1,0 +1,674 @@
+---
+title: "Sophisticated data structures"
+output: 
+  github_document: default
+  pdf_document: default
+  html_document: default
+---
+
+<!-- #region -->
+## Sophisticated data structures
+
+* R provides sophisticated structure for the storage and manipulation of data.
+    * simplify data representation, manipulation and analysis.  
+
+
+* dataframe  
+    * is like a matrix, 
+    * but extended to allow for different object models in different columns  
+
+
+* list
+    * is a general data structure that can house many kinds of R object.  
+
+
+* factor
+    * special variable that represent categorical objects.  
+<!-- #endregion -->
+
+## Factor
+A factor is a vector that can contain only predefined values, and is used to store categorical data
+
+Factors are built on top of integer vectors using two attributes: the ```class```, "factor", which makes them behave differently from regular integer vectors, and the ```levels```, which defines the set of allowed values.
+
+* Data type for ordinal and categorical vectors.   
+* The possible values of a factor are referred to as its level.   
+* To create a factor, apply function ```factor``` to some vector.
+
+
+```{r}
+hair <- c("blonde", "black", "brown", "brown", "black", "gray", "none")
+is.character(hair)
+```
+
+
+```{r}
+is.factor(hair)
+```
+
+
+```{r}
+hair <- factor(hair)
+is.factor(hair)
+```
+```{r}
+class(hair)
+```
+
+```{r}
+levels(hair)
+```
+```table()``` calculates the number of times each level of the factor appears.
+
+```{r}
+table(hair)
+```
+
+* Specify level using ```levels``` argument.
+
+```{r}
+hair <- factor(hair, levels=c("black", "blonde", "brown", "gray", "white", "none"))
+table(hair)
+```
+
+You can't use values that are not in the levels.
+
+```{r}
+hair[2] <- "green"
+```
+```{r}
+# reset
+hair[2] <- "black"
+```
+
+
+Indeed, the type of a factor is integer.
+
+```{r}
+typeof(hair)
+```
+```{r}
+as.numeric(hair)
+```
+## Dataframe
+
+A data frame is the most common way of storing data in R.
+
+* Dataframe is a list of vectors (with equal length).   
+* Each vector (column) is a variable in experiment.   
+* Each row is a single observation.
+
+### creating data.frame
+
+You create a data.frame using ```data.frame()```, which takes named vectors or existing data.frame as input:
+
+```{r eval=FALSE}
+data.frame(col1=x1, col2=x2, ..., df1, df2, ...)
+```
+
+* ```col1``` and ```col2``` are column names
+
+* ```x1``` and ```x2``` are vectors of equal lengths
+
+* ```df1``` and ```df2``` are dataframes whose columns must be the same length with ```x1```, ```x2```
+
+
+```{r}
+df <- data.frame(x = 2:4, y = c("a", "b", "c"))
+str(df)
+```
+
+
+```data.frame()``` turns strings into factors in R 3.x and 2.x.   
+Use ```stringsAsFactors = FALSE``` to suppress this behaviour:  
+(In R 4.x, R now uses a ```stringsAsFactors = FALSE``` default.)
+
+```{r}
+df <- data.frame(
+  x = 2:4,
+  y = c("a", "b", "c"),
+  stringsAsFactors = FALSE)
+str(df)
+```
+
+```{r}
+typeof(df)
+class(df)
+is.data.frame(df)
+```
+
+Combinding dataframes:
+
+```{r}
+cbind(df, data.frame(z = 3:1))
+```
+```{r}
+rbind(df, data.frame(x = 10, y = "z"))
+```
+
+
+### read.table
+
+You can use ```read.table``` to create data.frame from a file.
+
+Plot | Tree | Species | Diameter | Height
+---- | ---- | ------- | -------- | ------
+2 | 1 | DF | 39 | 20.5
+2 | 2 | WL | 48 | 33.0
+3 | 2 | GF | 52 | 30.0
+... | ... | ... | ... | ...
+
+
+* Large dataframe are usually read into R from a file, using ```read.table```.    
+
+```{r eval=FALSE}
+read.table(file, header=FALSE, sep="")
+```
+
+* ```file```
+    * filename to be read, can be relative or absolute.   
+    * the same number of values in each row.    
+    * the values may be different modes, but the pattern of modes must be the same in each row.   
+* ```header```
+    * whether or not the first line of the file is the variable names    
+* ```sep```
+    * gives the character used to separate values in each row.    
+    * default ```""``` has the special interpretation that a variable amount of white space (spaces, tabs, returns) can separate values.
+
+### more about read.table
+
+* Two commonly used variants of ```read.table```    
+    * ```read.csv(file)```
+        * for comma-separated data    
+        * equivalent to ```read.table(file, header=TRUE, sep=",")```    
+
+    * ```read.delim(file)```
+        * for tab-delimitated data
+        * equivalent to ```read.table(file, header=TRUE, sep="\t")```
+
+
+### Header
+
+* If a header is present, it is used to name the columns of the dataframe.    
+* You can assign your own column names after reading the dataframe (using the ```names``` function).    
+* Or when you read it in, using the ```col.names``` argument,
+    * which should be assigned a character vector the same lengths of the column number.
+* If there is no head and no ```col.names``` argument, then R uses the names "V1", "V2", etc.
+
+### read csv file
+
+* ufc.csv is comma separated and there is a header line.
+
+```{r eval=FALSE}
+ufc <- read.csv("the path of ufc.csv")
+```
+
+```{r echo=FALSE}
+ufc <- read.csv("./data/ufc.csv")
+```
+
+* head and tail to examine the object
+
+```{r}
+head(ufc)
+```
+
+```{r}
+tail(ufc)
+```
+
+* Each column has a unique name and we can extract that variable by means of names using ```$```.
+
+```{r}
+x <- ufc$height.m
+x[1:5]
+```
+
+### accessing element in data.frame
+
+* We can use ```[[?]]``` to extract columns.
+    * ```ufc$height.m```,  ```ufc[[5]]``` and ```ufc[["height.m"]]``` are all equivalent.
+    * The result is a vector.
+
+```{r}
+x1 <- ufc[["height.m"]]
+x1[1:5]
+```
+
+```{r}
+x2 <- ufc[[5]]
+x2[1:5]
+```
+
+* You can extract the elements of a dataframe directly using matrix indexing.
+
+```{r}
+# the result is a vector
+ufc[1:5, 5]
+```
+
+* To select more than one of the variables in a dataframe, we use ```[?]```.
+    * ```ufc[4:5]``` is equivalent to ```ufc[c("dbh.cm", "height.m")]```.
+    * ```[]``` preserves the type of dataframe.
+
+```{r}
+#diam.height and z are data.frame
+diam.height <- ufc[4:5]    
+(z <- diam.height[1:5, ])
+```
+```{r}
+is.data.frame(diam.height)
+```
+```{r}
+# diam.height1 is a data.frame
+diam.height1 <- ufc[5]
+is.data.frame(diam.height1)
+
+# z1 is not a data.frame, but a vector, since [,] simplifies.
+z1 <- diam.height1[1:5, ]
+is.data.frame(z1)
+```
+
+
+* Selecting a column using ```[[?]]``` preserves the type of the object that is being extracted.
+
+* Whereas, ```[?]``` keeps the type of the object from which the extraction is being made.
+
+```{r}
+typeof(ufc)
+```
+
+```{r}
+typeof(ufc[5])
+```
+
+```{r}
+# numeric vector
+typeof(ufc[[5]])
+```
+* In addition, ```[,]``` tends to simplify the data type, if possible.
+```{r}
+typeof(ufc[1:5, 5])
+```
+```{r}
+# In this case, simplification is impossible, and original data.frame type is preserved.
+typeof(ufc[1:5, 4:5])
+class(ufc[1:5, 4:5])
+```
+
+
+http://r4ds.had.co.nz/vectors.html
+
+### create new variable
+
+* create a new variable within a dataframe, by naming it and assigning it a value.
+
+```{r}
+ufc$volume.m3 <- pi * (ufc$dbh.cm / 200)^2 * ufc$height / 2
+mean(ufc$volume.m3)
+```
+
+### name of column
+
+* ```names(df)``` return the names of the dataframe ```df```.
+
+* To change the names of ```df``` you pass a vector of strings to ```names(df)```.
+
+```{r}
+(ufc.names <- names(ufc))
+```
+
+```{r}
+names(ufc) <- c("P", "T", "S", "D", "H", "V")
+names(ufc)
+```
+
+```{r}
+names(ufc) <- ufc.names
+```
+
+### subset
+
+* ```subset``` is a convenient tool for selecting rows of dataframe.
+    * ```x %in% y``` returns a logical vector whose i-th element is ```TRUE``` if ```x[i]``` is in ```y```.
+
+
+```{r}
+fir.height <- subset(ufc, subset=species %in% c("DF", "GF"), select = c(plot, tree, height.m))
+head(fir.height)
+```
+
+### write a dataframe
+
+```{r eval=FALSE}
+write.table(x, file="", append=FALSE, sep=" ", row.names=TRUE, col.names=TRUE)
+```
+
+* ```x``` is a dataframe to be written.    
+* ```file``` is the address of the file to write to.    
+* ```append``` indicates whether or not to append.    
+* ```sep``` is the character used to separate the values.    
+* ```row.name``` indicates whether or not to include the row names as the first column.    
+* ```col.names``` indicates whether or not to include the column names as the first row.   
+
+
+### Another method to read and write tabular data
+
+
+* ```read_csv()``` and ```read_tsv()``` are special cases of the general ```read_delim()``` in ```readr``` package.  
+* They're useful for reading the most common types of flat file data, comma separated values and tab separated values, respectively.
+* ```ufc_tibble``` is a data frame providing a nicer printing method, useful when working with large data sets.
+
+```{r}
+library(readr)
+ufc_tibble <- read_csv("./data/ufc.csv")
+```
+```{r}
+ufc_tibble
+```
+## List
+
+* We have seen that a vector is an indexed set of objects.
+
+* All the elements of a vector to be the same type - numeric, character or logical - which is called the mode of the vector.
+
+* List is an indexed set of objects, but the element of a list can be of different type, including other list.
+    * The mode of a list is list.
+
+* A list is created using the ```list(...)``` command instead of ```c()```, with comma separated arguments.
+
+* Single square brackets ```[ ]``` are used to select a sublist.
+
+* Double square brackets ```[[ ]]``` are used to extract a single element.
+
+### Example
+
+```{r}
+(my.list <- list("one", TRUE, 3, c("f", "o", "u", "r")))
+```
+```{r}
+str(my.list)
+```
+
+```{r}
+my.list[[2]]
+```
+
+```{r}
+mode(my.list[[2]])
+```
+
+```{r}
+my.list[2]
+```
+
+```{r}
+mode(my.list[2])
+```
+
+```{r}
+my.list[[4]][1]
+```
+
+```{r}
+my.list[4][1]
+```
+
+* When displaying a list, 
+
+* R uses double brackets ```[[1]], [[2]], etc.```, to indicate list elements, 
+
+* then single brackets ```[1], [2], etc.```, to indicate vector elements.
+
+```{r}
+# list can contain other list
+my.list2 <- list("a", c(5,6,7), my.list)
+```
+```{r}
+my.list2[3]
+```
+```{r eval=FALSE}
+#error
+my.list2[3][[4]]
+```
+
+```{r}
+my.list2[[3]]
+```
+```{r}
+my.list2[[3]][4]
+```
+
+
+```{r}
+my.list2[[3]][[4]]
+```
+
+
+### name of elements of list
+
+The element of a list can be named when the list is created.
+
+```{r}
+my.list <- list(first = "one", second=TRUE, third=3, fourth = c("f", "o", "u", "r"))
+names(my.list)
+```
+
+```{r}
+my.list$second
+```
+
+
+The element of a list can be named by names ```attribute```.
+
+```{r}
+names(my.list) <- c("Fi", "Se", "Th", "Fo")
+my.list$Se     
+```
+
+```{r}
+my.list$"Se"
+```
+
+```{r}
+my.list[["Se"]]
+```
+
+
+### Simplify vs. Preserving
+
+type | Simplifying | Preserving 
+---- | ---- | ------- 
+vector | ```x[[1]]``` | ```x[1]```
+array(matrix) | ```x[1, ]```, ```x[, 1]``` | ```x[1, , drop = F]```, ```x[, 1, drop = F]```
+list | ```x[[1]]```, ```x$a```, ```x[["a"]]``` | ```x[1]```, ```x["a"]```
+data.frame | ```x[, 1]``` | ```x[1, ]```, ```x[, 1, drop = F]```
+
+* Note that data.frame is a list, and hence simlifying and preserving rules for list are also applied to data.frame.
+
+http://adv-r.had.co.nz/Subsetting.html
+
+### list as output of function
+
+* Many functions produce list object as their ouput.
+
+* For example, when fit a least squares regression, the regression object itself is a list, 
+
+* and can manipulated using list operations.
+
+```{r}
+lm.xy <- lm(y~x, data=data.frame(x=1:5, y=1:5))
+typeof(lm.xy)
+```
+```{r}
+names(lm.xy)
+```
+* ```str``` can be used to summarize a list or dataframe : ```str(lm.xy)```
+
+## apply family
+
+* R has several functions that allow you to easily apply a function to all or selected elements of a list or dataframe.
+
+* ```tapply``` allows us to vectorise the application of a function to subsets of data.
+
+```{r eval=FALSE}
+tapply(X, INDEX, FUN, ...)
+```
+
+* ```X``` : target vector to be applied.
+
+* ```INDEX``` : a factor, the same length as ```X```, used to group the elements. (If ```INDEX``` is not a factor, then it will be automatically converted to a factor.)
+
+* ```FUN``` : a function to be applied. It is applied to subvectors of ```X``` corresponding to a single level of ```INDEX```.
+
+* ```tapply``` works similar with groupby + summary function in SQL.
+
+* ```INDEX``` denotes groupby and ```FUN``` represents a summary function.
+
+https://www.rdocumentation.org/packages/base/versions/3.4.0/topics/tapply
+
+### tapply example
+
+Using ```tapply``` we obtain average height group by species as follows:
+
+
+```{r}
+tapply(ufc$height.m, ufc$species, mean)
+```
+
+To round the results:
+
+```{r}
+round(tapply(ufc$height.m, ufc$species, mean), digits=1)
+```
+
+To find out how many samples we have of each species:
+
+```{r}
+tapply(ufc$species, ufc$species, length)
+```
+```{r}
+# the same result
+tapply(ufc$height.m, ufc$species, length)
+```
+
+#### Example : tapply
+```tapply``` can be used to count the number of elements in a vector:
+```{r}
+x <- c(1,2,3,4,5,4,6,2,5,6,5,3,4,1,4,5,6,7,2,2,6,7,9,3,5)
+tapply(X = x, INDEX = x, FUN = length)
+```
+
+the above is almost the same as
+
+```{r}
+table(x)
+```
+
+```{r}
+y <- x %% 2
+tapply(X = x, INDEX = y, FUN = length)
+```
+
+
+```{r}
+y <- x %% 2
+tapply(X = x, INDEX = y, FUN = max)
+```
+
+
+### lapply and sapply
+
+* ```lapply(X, FUN, ...)``` applies the function ```FUN``` to each element of the list ```X``` and returns a list.
+
+* ```sapply(X, FUN, ...)``` applies the function ```FUN``` to each element of ```X```, which can be a list or a vector, 
+and by default will try to return the results in a vector or a matrix, if this make sense, otherwise in a list.
+
+
+To obtain the mean diameter, height, and volume of trees:
+
+```{r}
+lapply(ufc[4:6], mean)   # return a list
+```
+```{r}
+sapply(ufc[4:6], mean)   # return a vector
+```
+
+Simple example:
+```{r}
+sapply(1:3, function(x) x^2)
+```
+```{r}
+lapply(1:3, function(x) x^2)
+```
+
+
+### lapply example
+
+```{r}
+df <- data.frame(replicate(6, sample(c(1:10, -99), 6, rep = TRUE)))
+names(df) <- letters[1:6]
+df
+```
+
+You want to replace all the -99s with NAs.
+
+```{r}
+fix_missing <- function(x) {
+  x[x == -99] <- NA
+  x
+}
+df[] <- lapply(df, fix_missing)  #list to data.frame, use df[]
+df
+```
+
+```{r}
+sapply(df, fix_missing)
+```
+
+
+More about apply : http://adv-r.had.co.nz/Functional-programming.html
+
+### three dots ellipsis ... in function argument
+
+The three dots ellipsis ```...``` in function argument is used to get a variable-length argument list.
+
+ * One example is ```paste```, where you can put a variable numbers of arguments. Check ```?paste```.
+
+To handle ```...```, first convert it to a list inside the function.
+
+```{r}
+addemup <- function(x, ...){
+  args <- list(...)
+  for (a in args) x <- x + a
+  x
+}
+```
+
+```{r}
+addemup(1, 1)
+```
+
+```{r}
+addemup(1, 2, 3, 4, 5)
+```
+
+
+```{r}
+reverse_paste0 <- function(...){
+  result <- ""
+  args <- list(...)
+  
+  for (i in length(args):1){
+    result <- paste0(result, args[i])
+  }
+  result
+}
+```
+```{r}
+reverse_paste0("a", "b", "c")
+```
+
+```{r}
+reverse_paste0("a", "b", "c", "d", "e")
+```
