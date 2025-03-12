@@ -1,0 +1,81 @@
+## Function
+
+```         
+my_fun <- function(k){
+  y=k_1
+  return(y)
+}
+```
+
+```         
+# factor
+factor_val <- factor(c("low","middle","high"))
+factor(factor_val, levels=c("low", "middle", "high"),ordered=TRUE)
+## [1] low middle high
+## Levels: low < middle < high
+```
+
+## DataFrame
+
+```         
+# -- data frame -- #
+x1 <- c(1,2,3)
+x2 <- c("a","b","c")
+dat <- data.frame(c1=x1,c2=x2)
+dat
+## c1 c2
+## 1 1 a
+## 2 2 b
+## 3 3 c
+dat$c3 <- c(5,6,7)
+dat
+## c1 c2 c3
+## 1 1 a 5
+## 2 2 b 6
+## 3 3 c 7
+```
+
+## Graphic
+
+1.  plot
+
+```         
+plot(x=cars$speed,y=cars$dist,cex=2,pch=16,col="red",cex.lab=1,xlab="Speed(x)",ylab="Dist(y
+)",main="The realtionship of Dist and Speed")
+```
+
+2.  histogram
+
+```         
+hist(cars$dist,xlab="Dist",ylab="probablity",main="Histogram of Dist",col="skyblue",freq=F)
+lines(density(cars$dist),lwd=3,col="red")
+```
+
+## plot3D
+
+```         
+install.packages("plot3D")
+library("plot3D")
+scatter3D(x, y, z, clab = c("Sepal", "Width (cm)"))
+
+head(iris)
+## Sepal.Length Sepal.Width Petal.Length Petal.Width Species
+## 1 5.1 3.5 1.4 0.2 setosa
+## 2 4.9 3.0 1.4 0.2 setosa
+## 3 4.7 3.2 1.3 0.2 setosa
+## 4 4.6 3.1 1.5 0.2 setosa
+## 5 5.0 3.6 1.4 0.2 setosa
+## 6 5.4 3.9 1.7 0.4 setosa
+x <- iris$Sepal.Length
+y <- iris$Petal.Length
+z <- iris$Sepal.Width
+scatter3D(x, y, z, clab = c("Sepal", "Width (cm)"))
+```
+
+## Bring data
+
+```         
+setwd("C:/…/")
+import_dat <- read.csv('sample.csv',header=T)
+import_dat
+```
