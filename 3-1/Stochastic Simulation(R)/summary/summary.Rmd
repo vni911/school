@@ -137,3 +137,101 @@ for (i in 1:(length(t) - 1)) {
 
 (I <-sum(t) * dt)
 ```
+#### Example : exponential limit
+
+```         
+n <- seq(10, 200, by=10)
+y = (1+1/n)^n
+exp(1)-y
+```
+
+```         
+plot(n,y)
+```
+
+### Missing data
+
+`is.na`
+ 
+```         
+a <- c(11, NA, 13)
+is.na(a)
+mean(a)
+mean(a, na.rm = TURE) #NAs an be removed
+```
+
+### Inf and -Inf
+
+> if value is too big, R print `Inf`
+
+```         
+- 2 ^ 1024
+```
+
+### NaN
+
+> is there no mean of value, R print `NaN`
+
+```         
+Inf - Inf
+0/0
+```
+
+### Subsetting
+
+`x[subset]`
+
+```         
+x <- 1:10
+x %% 4 == 0
+(y <- x[x %% 4 == 0])
+```
+
+> subset() dismiss NA, x[subset] substain NA
+
+```         
+x <- c(1, NA, 3, 4)
+x[x>2]
+subset(x, subset = x>2)
+```
+
+> use `which(v)`,if you want TURE elements
+
+```         
+x <- c(1,1,2,3,5,8,13)
+which(x %% 2 == 0)
+```
+
+### Sequential `&&` and `||`
+
+> `&&`,`||` only work on scalars, whereas `&`,`|` work on vector on element by element basic
+
+```         
+x == 0 || sin(1/x) == 0
+x == 0 | sin(1/x) == 0
+c(TRUE, FALSE) & c(TRUE, TRUE)
+c(TRUE, FALSE) && c(TRUE, TRUE)
+```
+
+### Names
+
+```         
+(x <- c(a = 1, b = 2, c = 3))
+y <- 1:3
+names(y) <- c("first", "second", "third")
+```
+
+### matrix
+
+> `matrix(data, nrow = , ncol = , byrow = T/F)`
+
+
+
+### Etc.
+
+-   rounding error
+
+```         
+sqrt(2)*sqrt(2) == 2
+all.equal(sqrt(2)*sqrt(2), 2)
+```
