@@ -1,4 +1,3 @@
-// common/store/scheduleStore.js
 import { create } from 'zustand';
 
 export const useScheduleStore = create((set) => ({
